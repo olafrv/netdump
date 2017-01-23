@@ -1,0 +1,17 @@
+###
+# File: /etc/netdump/auths.conf
+# In this file you should use \$ instead of $
+# so expect does not show errors like this:
+# 
+#>>  Password: can't read "t": no such variable
+#>>     while executing
+#>> "send -- "J@ck3$t\n""
+#>>     invoked from within
+#>> "expect {
+#>> 	"*assword:" { send -- "J@ck3$t\n"; exp_continue }
+#>> 	"*#" { send "show run\n"; exp_continue }
+#>> 	"Building configuration..." {}
+#>> }"
+##
+auth1:dummy:123456
+auth9:joe:cracked99

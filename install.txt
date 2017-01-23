@@ -1,0 +1,35 @@
+* Install PHP and PHP Development Framwork
+
+  apt-get install php5 php5-dev (current stable version of php).
+
+* Install php-pear (PHP Extension and Application Repository)
+
+  apt-get install php-pear
+
+  To verify whether pear is installed properly or not, type command pear, there you will get
+  list of command like discover-channel, upgrade,upgrade-all,if pear is successfully installed.
+
+* Install Tool command language (TCL) and TK,for installing expect package 
+
+  apt-get install tcl tcl-dev tk tk-dev
+
+* Install Expect package, required for php-expect
+
+  apt-get install expect expect-dev
+
+* Install php-expect using pecl
+
+  pecl install expect
+
+* Install Console_Table extension
+
+	pear install Console_Table
+
+* Sometime it may give error regarding channel, then use the path mentioned in suggestion like
+
+  pecl install channel://pecl.php.net/expect-0.3.3
+
+* After successful installation of expect package, add the following line under extension in
+  php.ini file (this will also be shown after successful installation of expect function)       
+
+  extension = expect.so
