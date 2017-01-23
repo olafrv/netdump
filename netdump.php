@@ -18,8 +18,8 @@
  *		along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'Console/Table.php';
-require_once 'Colors.php';
+require_once 'lib/Console/Table.php';
+require_once 'lib/Colors.php';
 
 function readlines($file, $skip = "#"){
 	$lines = array();
