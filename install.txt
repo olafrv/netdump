@@ -33,3 +33,11 @@
   php.ini file (this will also be shown after successful installation of expect function)       
 
   extension = expect.so
+
+* Create files and permissions:
+	mkdir /etc/netdump
+  cp /etc/netdump/targets.conf.example /etc/netdump/targets.conf
+  cp /etc/netdump/auths.conf.example /etc/netdump/auths.conf
+  chmod 600 /etc/netdump/auths.conf
+ 
+  
