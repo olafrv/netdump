@@ -1,0 +1,10 @@
+#############
+# Firewalls #
+#############
+fortigate-sfg:172.16.0.1:fg1000c:auth1
+######################
+# Switches & Routers #
+######################
+cisco:192.168.1.1:sw1pb:auth1
+cisco-telnet:192.168.1.2:sw2p4:auth9
+# cisco-enable:192.168.1.3:c7600us:auth9
