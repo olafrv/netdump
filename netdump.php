@@ -179,6 +179,10 @@ php netdump.php show target
 	List targets from file '$_TARGETS_FILE'
 php netdump.php show auth
 	List crendentials file '$_AUTHS_FILE'
+php netdump.php show dump target [+/-days]
+	List dumps for 'target' (case sensitive) created 'days' 
+  before/after (+/-) somedays until today, using system 
+  comands like: find, sort, etc.
 php netdump.php run [tag]
 php netdump.php debug [tag]
 
@@ -192,6 +196,7 @@ LOGGING
 }
 
 $_COLORS = new Colors();
+$_RUN = false;
 $_DEBUG = false;
 $_TARGETS_FILE = "/etc/netdump/targets.conf";
 $_AUTHS_FILE = "/etc/netdump/auths.conf";
@@ -220,13 +225,30 @@ if (isset($argv[1])){
 						echo tabulate($auths, array("Auth", "Param1", "Param2", "Parm3"));
 						exit(0);
 						break;
+					case "dump":
+						if (isset($argv[3])){
+							$backtime = -7;
+							if (isset($argv[4])) $backtime = escapeshellarg($argv[4]);
+							system(
+									"find '$_OUTFILE_ROOTDIR' -type f -name '*" 
+									. escapeshellarg($argv[3]) . "*.conf' -mtime $backtime" 
+									. " -printf \"%TY-%Tm-%Td %TH:%TM:%TS% Tz\t%k KB\t%p\n\" | sort\n"
+							);
+						}else{	
+							help(); exit(-1);	
+						}
+						break;
 				}
 			}
+			exit(0);
+			break;
 		case "run":
 			// Just run netdump
+			$_RUN = true;
 			break;
 		case "debug":
 			// Run and show debug messages
+			$_RUN = true;
 			$_DEBUG = true;
 			break;
 		default:
