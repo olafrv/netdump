@@ -18,7 +18,7 @@
  *		along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'lib/Console/Table.php';
+require_once 'Console/Table.php';
 require_once 'lib/Colors.php';
 
 function readlines($file, $skip = "#"){
@@ -69,7 +69,24 @@ function automata_expect($cmd, $cases, $answers, $capturefile){
 		if ($_DEBUG){
 			echo $_COLORS->getColoredString($case, "black", "yellow") . " -> '" . $str . "\n";
 		}
-		if ($case == "skip") continue;
+		if ($case == "chr"){
+			if ($_DEBUG){
+				echo $_COLORS->getColoredString($case, "black", "yellow") . " -> '";
+				$chars = array();
+				foreach(str_split($match[0]) as $char) $chars[] = ord($char);
+				echo implode(",", $chars);
+				echo "'\n";
+			}
+			continue;
+		}
+		if ($case == "skip"){
+			if ($_DEBUG){
+				echo $_COLORS->getColoredString($case, "black", "yellow") . " -> '";
+				echo $match[0];
+				echo "'\n";	
+			}
+			continue;
+		}
 		if ($case == "save"){
 			if (strlen($str)>0){
 				$written = fwrite($cstream, $str); // Save match (buffer)
@@ -129,7 +146,7 @@ function automata_cisco($type, $address, $user, $password, $passwordEnable, $out
 		array("* >", "enable", EXP_GLOB),
 		array("^[-_\.0-9A-Za-z]+#$", "prompt", EXP_REGEXP),
 		array("Building configuration...", "skip", EXP_GLOB),
-		//array("\010", "skip", EXP_GLOB),
+		array("^[\010]+[\x20h]+[\010]+", "chr", EXP_REGEXP), // Backspace Space Backspace
 		array("*\n", "save", EXP_GLOB),
 		array("*--More--*", "more", EXP_GLOB)
 	);
@@ -286,7 +303,7 @@ foreach($targets as $target){
 	}
 	if (is_file($outfile) && filesize($outfile)>0){
 		$msg = "SAVED: [" . filesize($outfile)  . "B] '$outfile'";
-		echo $_COLORS->getColoredString($msg, "white", "green") . "\n";
+		echo $_COLORS->getColoredString($msg, "black", "green") . "\n";
 	}else{
 		$msg = "SAVED: Empty! '$outfile'";
 		echo $_COLORS->getColoredString($msg, "white", "red") . "\n";
