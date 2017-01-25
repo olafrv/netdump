@@ -21,6 +21,12 @@
 require_once 'Console/Table.php';
 require_once 'lib/Colors.php';
 
+define("NETDUMP_EOF", 0);         		// End of expect stream
+define("NETDUMP_FULLBUFFER", 10); 		// Buffer stream is full 
+define("NETDUMP_TIMEOUT", 20);    		// Input timeout error
+define("NETDUMP_FINISHED", 30);  			// Completed and finished
+define("NETDUMP_UNKNOWN_CASE", 30);   // Unknown case for match
+
 function readlines($file, $skip = "#"){
 	$lines = array();
 	$handle = fopen($file, "r");
@@ -56,64 +62,133 @@ function tabget($array, $index, $value){
 	}
 	return $found;
 }
+				
+function strgetchr($str, $to_string = true){
+	$chars = array();
+	foreach(str_split($str) as $char) $chars[] = 'chr(' . ord($char) . ')';
+	if ($to_string){
+		return implode(", ", $chars);
+	}else{
+		return $chars;
+	}
+}
 
-function automata_expect($cmd, $cases, $answers, $capturefile){
-	global $_DEBUG;
-	global $_COLORS;
-	$cstream = fopen($capturefile, "a+");
-	$stream = expect_popen($cmd);
-	while (true) {
-		$match = array();		
-		$case = expect_expectl($stream, $cases, $match);
-		$str = isset($match[0]) ? $match[0] : "";
-		if ($_DEBUG){
-			echo $_COLORS->getColoredString($case, "black", "yellow") . " -> '" . $str . "\n";
-		}
-		if ($case == "chr"){
-			if ($_DEBUG){
-				echo $_COLORS->getColoredString($case, "black", "yellow") . " -> '";
-				$chars = array();
-				foreach(str_split($match[0]) as $char) $chars[] = ord($char);
-				echo implode(",", $chars);
-				echo "'\n";
+function automata_netdump($cmd, $cases_groups, $answers_groups, $outfile){
+	global $_DEBUG, $_COLORS;
+	$outstream = fopen($outfile, "w+"); // Where to save output stream
+	$stream = expect_popen($cmd); // Command input/ouput stream
+	for($iteration = 0; $iteration < count($cases_groups); $iteration++)
+	{
+		$cases = $cases_groups[$iteration];  // expr | case name | expr type | jump next group?
+		$answers = $answers_groups[$iteration]; // case name | answer | times -1, 0, 1, ...?, 
+		if ($_DEBUG) echo colorDebug("iteration: $iteration");
+		while (true) 
+		{
+			if ($_DEBUG) echo colorDebug("expect");
+			$matchs = array(); // stream input matches 0, 1, 2, ... 8
+			$casename = expect_expectl($stream, $cases, $matchs); // group of cases
+			$matched = isset($matchs[0]) ? $matchs[0] : ""; // whole input which matched the case
+			$case = tabget($cases, 1, $casename);
+			if ($casename == "chr")
+			{ 
+				// Print characters ASCII codes & skip
+				if ($_DEBUG) echo colorDebug("chr ->' ") . strgetchr($matched) . "'\n";
+				continue;
 			}
-			continue;
-		}
-		if ($case == "skip"){
-			if ($_DEBUG){
-				echo $_COLORS->getColoredString($case, "black", "yellow") . " -> '";
-				echo $match[0];
-				echo "'\n";	
+			if ($casename == "skip")
+			{ 
+				// Always skip
+				if ($_DEBUG) echo "skip -> '" . $matched . "'\n";	
+				continue;
 			}
-			continue;
-		}
-		if ($case == "save"){
-			if (strlen($str)>0){
-				$written = fwrite($cstream, $str); // Save match (buffer)
+			if ($casename == "save")
+			{ 
+				// Save input to file
+				$written = 0;
+				if (strlen($matched)>0) $written = fwrite($outstream, $matched); // Save match (buffer)
+				if ($_DEBUG) echo colorDebug("save [$written] -> ") . $matched . "\n";
+				continue;	
 			}
-			continue;	
-		}
-		$answered = false;
-		for($i=0; $i<count($answers); $i++){
-			if ($answers[$i][0] == $case){
-				if ($answers[$i][2] == 0) continue; // Answers can't be used anymore
-				if ($answers[$i][2] > 0) --$answers[$i][2]; // Use this answer once more
-				fwrite($stream, $answers[$i][1]); // Answers ...
-				if ($_DEBUG){
-					echo $_COLORS->getColoredString("answer", "black", "yellow") . " <- '" . $answers[$i][1] . "'\n";
+			$answered = false;
+			for($i=0; $i<count($answers); $i++)
+			{
+				if ($answers[$i][0] == $casename)
+				{
+					// When -1 means this answer can be used always
+					if ($answers[$i][2] == 0) continue; // Answers can't be used anymore
+					if ($answers[$i][2] > 0) --$answers[$i][2]; // Use this answer again (n-times)
+					if ($_DEBUG) echo colorDebug("answer (match) -> ")  . $matched . "\n";	
+					if (empty($answers[$i][1]))
+					{ 
+						// Skip once, n-times or always (do nothing)
+						if ($_DEBUG) echo colorDebug("answer (skip)");	
+					}else{
+						// Answer
+						fwrite($stream, $answers[$i][1]); // Answers ...
+						if ($_DEBUG) echo colorDebug("answer <- ") . $answers[$i][1] . "\n";
+					}
+					$answered = true;
+					break;
 				}
-				$answered = true;
-				break;
 			}
-		}	
-		if (!$answered){
-			if ($case != EXP_EOF) echo $case . "-> '" . $str . "'\n";
-			break; // EOF, Timeout, Full buffer, Unknown...
+			if ($answered)
+			{	
+				// Jump to next group of cases or finish?
+				if (isset($case[3]) && in_array(isset($case[3]), array("jump", "finish")))
+				{
+					if ($_DEBUG) echo colorInfo($case[3]);
+					if ($case[3] == "jump"){
+						break 1; // Continue with the next group of cases (break while)
+					}else{
+						break 2; // Do not process more group of cases (break for)
+					}
+				}
+			}
+			else
+			{ 
+				// EOF, Timeout, Full buffer, Unknown...
+				if ($_DEBUG)
+				{
+					switch($casename)
+					{
+						case EXP_EOF:
+							echo colorWarn("eof");
+							break;
+						case EXP_TIMEOUT:
+							echo colorError("timeout");
+							break;
+						case EXP_FULLBUFFER:
+							echo colorError("fullbuffer");
+							break;
+						default:
+							echo colorError("unknown case '$casename' -> ") . strgetchr($matched);				
+							break;
+					}
+				}
+				break 2; // Do not process more group of cases (break for)
+			}
 		}
 	}
 	fclose($stream);
-	fclose($cstream);
-	return $case;
+	fclose($outstream);
+	switch($casename){
+		case EXP_EOF:
+			$result = NETDUMP_EOF;
+			break;
+		case EXP_TIMEOUT:
+			$result = NETDUMP_TIMEOUT;
+			break;
+		case EXP_FULLBUFFER:
+		  $result = NETDUMP_FULLBUFFER;
+			break;
+		case "finish":
+		  $result = NETDUMP_FINISHED;
+			break;
+		default:
+			$result = NETDUMP_UNKNOWN_CASE;
+			break;
+	}
+	return $result;
 }
 
 function automata_fortigate($type, $address, $user, $password, $outfile) {
@@ -122,13 +197,17 @@ function automata_fortigate($type, $address, $user, $password, $outfile) {
 	if ($type == "fortigate-sfg") $infile = "sys_config";
 	$cmd = "scp -q -oStrictHostKeyChecking=no $user@$address:$infile $outfile";
 	if ($_DEBUG) echo "CMD: " . $cmd . "\n";
-	$cases = array(
-		array("password:", "password", EXP_GLOB)
+	$cases = array(	
+		array(
+			array("password:", "password", EXP_GLOB),
+		)
 	);
 	$answers = array(
-		array("password", "$password\n", 1)
+		array(
+			array("password", "$password\n", 1)
+		)
 	);
-	return automata_expect($cmd, $cases, $answers, $outfile);
+	return automata_netdump($cmd, $cases, $answers, $outfile);
 }
 
 function automata_cisco($type, $address, $user, $password, $passwordEnable, $outfile) {
@@ -140,27 +219,38 @@ function automata_cisco($type, $address, $user, $password, $passwordEnable, $out
 	}
 	if ($_DEBUG) echo "CMD: " . $cmd . "\n";
 	$cases = array(
-		array(".*@.*'s [Pp]assword:", "sshpassword", EXP_REGEXP),
-		array("^[Uu]sername:", "user", EXP_REGEXP),
-		array("^[Pp]assword:", "password", EXP_REGEXP),
-		array("* >", "enable", EXP_GLOB),
-		array("^[-_\.0-9A-Za-z]+#$", "prompt", EXP_REGEXP),
-		array("Building configuration...", "skip", EXP_GLOB),
-		array("^[\010]+[\x20h]+[\010]+", "chr", EXP_REGEXP), // Backspace Space Backspace
-		array("*\n", "save", EXP_GLOB),
-		array("*--More--*", "more", EXP_GLOB)
+		array(
+			array(".*@.*'s [Pp]assword:", "sshpassword", EXP_REGEXP),
+			array("^[Uu]sername:", "user", EXP_REGEXP),
+			array("^[Pp]assword:", "password", EXP_REGEXP),
+			array("* >", "enable", EXP_GLOB),
+			array("^.*[-_\.0-9A-Za-z]+#", "prompt", EXP_REGEXP, "jump"),
+		),
+		array(
+			array("show run", "show run", EXP_GLOB),
+			array("Building configuration...", "skip", EXP_GLOB),
+			array("^[\010]+[\x20h]+[\010]+", "chr", EXP_REGEXP), // Backspace-Space-Backspace
+			array("*\n", "save", EXP_GLOB),
+			array("*--More--*", "more", EXP_GLOB),
+			array("^[-_\.0-9A-Za-z]+#$", "exit", EXP_REGEXP, "finish"),
+		)
 	);
 	$answers = array(
-		array("user", "$user\n", 1),
-		array("sshpassword", "$password\n", 3),
-		array("password", "$password\n", 1),
-		array("enable", "enable\n", 1),
-		array("password", "$passwordEnable\n", 1),
-		array("prompt", "show run\n", 1),
-		array("more", " ", -1),
-		array("prompt", "exit\n", 1)
+		array(
+			array("sshpassword", "$password\n", 3),
+			array("user", "$user\n", 1),
+			array("password", "$password\n", 1),
+			array("enable", "enable\n", 1),
+			array("password", "$passwordEnable\n", 1),
+			array("prompt", "show run\n", 1),
+		),
+		array(
+			array("show run", "", 1),
+			array("more", " ", -1),
+			array("exit", "exit\n", 1)
+		)
 	);
-	return automata_expect($cmd, $cases, $answers, $outfile);
+	return automata_netdump($cmd, $cases, $answers, $outfile);
 }
 
 function help(){
@@ -175,9 +265,9 @@ COMMANDS
 
 php netdump.php [help]
 	Shows this help
-php netdump.php show target
+php netdump.php show targets
 	List targets from file '$_TARGETS_FILE'
-php netdump.php show auth
+php netdump.php show auths
 	List crendentials file '$_AUTHS_FILE'
 php netdump.php show dump target [+/-days]
 	List dumps for 'target' (case sensitive) created 'days' 
@@ -193,6 +283,31 @@ LOGGING
 
 \n";
 	
+}
+
+function colorDebug($msg, $newline = "\n"){
+	global $_COLORS;
+	return $_COLORS->getColoredString($msg, "black", "magenta") . $newline;
+}
+
+function colorInfo($msg, $newline = "\n"){
+	global $_COLORS;
+	return $_COLORS->getColoredString($msg, "white", "blue") . $newline;
+}
+
+function colorOk($msg, $newline = "\n"){
+	global $_COLORS;
+	return $_COLORS->getColoredString($msg, "black", "green"). $newline;
+}
+
+function colorWarn($msg, $newline = "\n"){
+	global $_COLORS;
+	return $_COLORS->getColoredString($msg, "black", "yellow") . $newline;
+}
+
+function colorError($msg, $newline = "\n"){
+	global $_COLORS;
+	return $_COLORS->getColoredString($msg, "white", "red") . $newline;
 }
 
 $_COLORS = new Colors();
@@ -276,7 +391,6 @@ foreach($targets as $target){
 	ini_set("expect.loguser", false);
 	ini_set("expect.match_max", 8192);
 	ini_set("expect.logfile", $logfile);
-	echo "---\n";
 	$result;
 	switch($type){
 		case "fortigate";
@@ -300,54 +414,53 @@ foreach($targets as $target){
 			$result = automata_cisco($type, $address, $user, $password, $passwordEnable, $outfile);
 			break;
 	}
+	// Result is an error?
 	$msg = "";
 	switch($result){
-		case EXP_EOF:
-			if ($_DEBUG) $msg = "End of stream (EOF)";
+		case NETDUMP_EOF:
+			// End of file (stream)
 			break;
-		case EXP_TIMEOUT:
+		case NETDUMP_TIMEOUT:
 			$msg = "Error timeout!"; // Connection or expect timeout
 			break;
-		case EXP_FULLBUFFER:
+		case NETDUMP_FULLBUFFER:
 			$msg = "Error buffer full!"; // Buffer full? => Raise expect buffer
 			break;
+		case NETDUMP_FINISHED:
+			// Finished (OK)
+			break;
 		default:
-			$msg = "Unknown ('$result') has occurred. Please debug!"; // Unknown error!
+			$msg = "Unknown case error result. Please debug!"; // Unknown error!
 			break;
 	}
 	$new_errors = false;
-	if (!empty($msg) && $result == EXP_EOF){
-		echo $_COLORS->getColoredString("-> " . $msg, "black", "yellow") . "\n";
+	if (!empty($msg) && $result == NETDUMP_EOF){
+		echo colorWarn("-> " . $msg);
 	}else if (!empty($msg)){
-		echo $_COLORS->getColoredString("-> " . $msg, "white", "red") . "\n";
+		echo colorError("-> " . $msg);
 		$errors[] = array($tag, $address, substr($msg,0,20), basename($logfile));
 		$new_errors = true;
 	}
 	if (is_file($outfile) && filesize($outfile)>0){
-		$msg = "SAVED: [" . filesize($outfile)  . "B] '$outfile'";
-		echo $_COLORS->getColoredString($msg, "black", "green") . "\n";
+		echo colorOk("SAVED: [" . filesize($outfile)  . "B] '$outfile'");
 	}else{
-		$msg = "SAVED: Empty! '$outfile'";
-		echo $_COLORS->getColoredString($msg, "white", "red") . "\n";
+		echo colorError("SAVED: Empty! '$outfile'");
 		$errors[] = array($tag, $address, substr($msg,0,20), basename($logfile));
 		$new_errors = true;
 	}
 	if ($_DEBUG || $new_errors){
-		$msg = "LOG: $logfile";
-		echo $_COLORS->getColoredString($msg, "black", "yellow") . "\n";
+		colorWarn("LOG: $logfile");
 	}
-	echo "---\n";
+	echo "\n";
 }
-
+// Final message (report)
 if (!empty($errors)){
-	$msg = "Final report of errors:";
-	echo $_COLORS->getColoredString($msg, "white", "red") . "\n";
-	echo tabulate($errors, array("Tag", "Addr", "Error", "Log" ));
-	$msg = "Log files saved in: $_LOGFILE_ROOTDIR";
-	echo $_COLORS->getColoredString($msg, "white", "red") . "\n";
+	echo colorError("Final report of errors:");
+	echo tabulate($errors, array("Tag", "Addr", "Error", "Log"));
+	echo colorWarn("Log files saved in: $_LOGFILE_ROOTDIR");
+	exit(-2);
 }else{
-	$msg = "Sucessful.";
-	echo $_COLORS->getColoredString($msg, "white", "green") . "\n";
+	echo colorOk("Sucessful.");
+	exit(0);
 }
 
- 
