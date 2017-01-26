@@ -1,6 +1,6 @@
 <?php
 
-$_TEMPLATE["cisco"] = array(
+$_TEMPLATE["cisco.nx"] = array(
 	"cmd" => "ssh -q -oStrictHostKeyChecking=no $auth[1]@$address",
 	"cases" => array(
 		array(
@@ -11,12 +11,11 @@ $_TEMPLATE["cisco"] = array(
 			array("^.*[-_\.0-9A-Za-z]+#", "prompt", EXP_REGEXP, "jump")
 		),
 		array(
-			array("show run", "show run", EXP_GLOB),
-			array("Building configuration...", "skip", EXP_GLOB),
-			array("^[\010]+[\x20h]+[\010]+", "chr", EXP_REGEXP), // Backspace-Space-Backspace
+			array("^.*show run.*$", "show run", EXP_REGEXP),
+			// array("^[\010]+[\x20h]+[\010]+", "chr", EXP_REGEXP), // Backspace-Space-Backspace
 			array("*\n", "save", EXP_GLOB),
 			array("*--More--*", "more", EXP_GLOB),
-			array("^[-_\.0-9A-Za-z]+#$", "exit", EXP_REGEXP, "finish")
+			array("^.*[-_\.0-9A-Za-z]+#", "exit", EXP_REGEXP, "finish")
 		)
 	),
 	"answers" => array(
@@ -29,7 +28,7 @@ $_TEMPLATE["cisco"] = array(
 			array("prompt", "show run\n", 1)
 		),
 		array(
-			array("show run", "", 1),
+			array("show run", "", 2),
 			array("more", " ", -1),
 			array("exit", "exit\n", 1)
 		)

@@ -15,7 +15,7 @@
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
- *		along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 require_once 'Console/Table.php';
@@ -61,7 +61,7 @@ if (isset($argv[1])){
 							$system_cmd = 
 								"find '$_OUTFILE_ROOTDIR' -type f -name " 
 								. escapeshellarg('*' . $argv[3]. '*.conf') . " -mtime $backtime" 
-								. " -printf \"%TY-%Tm-%Td %TH:%TM:%TS% Tz\t%k KB\t%p\n\" | sort\n";
+								. " -printf \"%TY-%Tm-%Td %TH:%TM \t%k KB\t%p\n\" | sort\n";
 							// echo $system_cmd;
 							system($system_cmd);
 						}else{	
@@ -97,29 +97,32 @@ if (isset($argv[1])){
 
 foreach($targets as $target){
 
-	if (count($target)<4) continue; // Empty target lines
-
-	$target = array_map("strclean", $target);
+	if (count($target)<4) continue; // Skip empty lines from targets.conf
+	$target = array_map("strclean", $target); // Trim spaces and non printable from targets.conf
 	list($template, $target_tag, $address, $auth_tag) = $target;
 
-	if (isset($argv[2]) and $target_tag != $argv[2]) continue; // Process specific target (tag)
+	if (isset($argv[2]) and $target_tag != $argv[2]) continue; // Filter for specific target (tag)
 
-	$auth = tabget($auths, 0, $auth_tag); // Find the credential for the target
+	$auth = tabget($auths, 0, $auth_tag); // Find the authentication credentials for the target
 
 	echo colorInfo("TARGET: Template: $template, Tag: $target_tag, Address: $address, User: $auth[1]");
 
+	// Define and create directory and file path
 	$outfile_dir = $_OUTFILE_ROOTDIR . "/" . $target_tag . "/" . $outfile_datedir;
 	$logfile_dir = $_LOGFILE_ROOTDIR . "/" . $target_tag . "/" . $outfile_datedir;
 	if (!is_dir($outfile_dir)) mkdir($outfile_dir, 0777, true);
 	if (!is_dir($logfile_dir)) mkdir($logfile_dir, 0777, true);
 	$outfile = $outfile_dir . "/" .  $outfile_datepfx . "_" . $target_tag . ".conf";
 	$logfile = $logfile_dir . "/" .  $outfile_datepfx . "_" . $target_tag . ".log";
-	ini_set("expect.timeout", 10);
-	ini_set("expect.loguser", false);
-	ini_set("expect.match_max", 8192);
-	ini_set("expect.logfile", $logfile);
-	$result;
 	$template_file = $_TEMPLATE_ROOTDIR . "/" . $template . ".php";
+
+	// Define expect library global settings
+	ini_set("expect.timeout", 10);			// Expect input timeout?
+	ini_set("expect.loguser", false);		// Expect input printed to stdout?
+	ini_set("expect.match_max", 8192);	// Expect input buffer size?
+	ini_set("expect.logfile", $logfile);// Expect session (input/output) log?
+
+	$result; // Result code from expect execution
 
 	if (is_file($template_file))
 	{
@@ -151,6 +154,7 @@ foreach($targets as $target){
 	switch($result){
 		case NETDUMP_EOF:
 			// End of file (stream)
+			if ($_DEBUG) colorWarn("EOF");
 			break;
 		case NETDUMP_TIMEOUT:
 			$msg = "Error timeout!"; // Connection or expect timeout
@@ -160,28 +164,25 @@ foreach($targets as $target){
 			break;
 		case NETDUMP_FINISHED:
 			// Finished (OK)
+			if ($_DEBUG) colorWarn("FINISHED");
 			break;
 		default:
 			$msg = "Unknown case error result. Please debug!"; // Unknown error!
 			break;
 	}
-
+	
 	// Check for other common errors?
-	if (!empty($msg))
-	{
-		if ($result == NETDUMP_EOF) echo colorWarn("-> " . $msg);
-	}else{
-		echo logError($msg, $target, $logfile);
-	}
+	if (!empty($msg)) echo logError($msg, $target, $logfile);
+
+	// Dump was really saved?
 	if (is_file($outfile) && filesize($outfile)>0){
 		echo colorOk("SAVED: [" . filesize($outfile)  . "B] '$outfile'");
 	}else{
-		echo logError("SAVED: Empty! '$outfile'", $target, $logfile);
+		echo logError("Error empty file '$outfile'!", $target, $logfile);
 	}
-	if ($_DEBUG && !is_null(tabget($_ERRORS, 1, $target_tag)))
-	{
-		echo colorWarn("LOG: $logfile");
-	}
+
+	// Show log file path if there were target errors
+	if ($_DEBUG && !is_null(tabget($_ERRORS, 1, $target_tag))) echo colorWarn("LOG: $logfile");
 
 	// Separator (Output)
 	echo "\n";
@@ -194,7 +195,7 @@ if (!empty($_ERRORS)){
 	echo colorWarn("Log files saved in: $_LOGFILE_ROOTDIR");
 	exit(-2);
 }else{
-	echo colorOk("Sucessful.");
+	if ($_DEBUG) echo colorOk("Sucessful.");
 	exit(0);
 }
 

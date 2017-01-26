@@ -95,7 +95,7 @@ function automata_netdump($cmd, $cases_groups, $answers_groups, $outfile){
 			if ($casename == "skip")
 			{ 
 				// Always skip
-				if ($_DEBUG) echo "skip -> '" . $matched . "'\n";	
+				if ($_DEBUG) echo colorDebug("skip -> '") . $matched . "'\n";	
 				continue;
 			}
 			if ($casename == "save")
@@ -118,7 +118,7 @@ function automata_netdump($cmd, $cases_groups, $answers_groups, $outfile){
 					if (empty($answers[$i][1]))
 					{ 
 						// Skip once, n-times or always (do nothing)
-						if ($_DEBUG) echo colorDebug("answer (skip)");	
+						if ($_DEBUG) echo colorDebug("answer (skip)") . $matched . "\n";	
 					}else{
 						// Answer
 						fwrite($stream, $answers[$i][1]); // Answers ...
