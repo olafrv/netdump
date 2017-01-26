@@ -188,68 +188,6 @@ function automata_netdump($cmd, $cases_groups, $answers_groups, $outfile){
 	return $result;
 }
 
-function automata_fortigate($type, $address, $user, $password, $outfile) {
-	global $_DEBUG;
-	if ($type == "fortigate") $infile = "fgt-config";
-	if ($type == "fortigate-sfg") $infile = "sys_config";
-	$cmd = "scp -q -oStrictHostKeyChecking=no $user@$address:$infile $outfile";
-	if ($_DEBUG) echo "CMD: " . $cmd . "\n";
-	$cases = array(	
-		array(
-			array("password:", "password", EXP_GLOB),
-		)
-	);
-	$answers = array(
-		array(
-			array("password", "$password\n", 1)
-		)
-	);
-	return automata_netdump($cmd, $cases, $answers, $outfile);
-}
-
-function automata_cisco($type, $address, $user, $password, $passwordEnable, $outfile) {
-	global $_DEBUG;
-	if ($type == "cisco-telnet"){
-		$cmd = "telnet $address";
-	}else{
-		$cmd = "ssh -q -oStrictHostKeyChecking=no $user@$address";
-	}
-	if ($_DEBUG) echo "CMD: " . $cmd . "\n";
-	$cases = array(
-		array(
-			array(".*@.*'s [Pp]assword:", "sshpassword", EXP_REGEXP),
-			array("^[Uu]sername:", "user", EXP_REGEXP),
-			array("^[Pp]assword:", "password", EXP_REGEXP),
-			array("* >", "enable", EXP_GLOB),
-			array("^.*[-_\.0-9A-Za-z]+#", "prompt", EXP_REGEXP, "jump"),
-		),
-		array(
-			array("show run", "show run", EXP_GLOB),
-			array("Building configuration...", "skip", EXP_GLOB),
-			array("^[\010]+[\x20h]+[\010]+", "chr", EXP_REGEXP), // Backspace-Space-Backspace
-			array("*\n", "save", EXP_GLOB),
-			array("*--More--*", "more", EXP_GLOB),
-			array("^[-_\.0-9A-Za-z]+#$", "exit", EXP_REGEXP, "finish"),
-		)
-	);
-	$answers = array(
-		array(
-			array("sshpassword", "$password\n", 3),
-			array("user", "$user\n", 1),
-			array("password", "$password\n", 1),
-			array("enable", "enable\n", 1),
-			array("password", "$passwordEnable\n", 1),
-			array("prompt", "show run\n", 1),
-		),
-		array(
-			array("show run", "", 1),
-			array("more", " ", -1),
-			array("exit", "exit\n", 1)
-		)
-	);
-	return automata_netdump($cmd, $cases, $answers, $outfile);
-}
-
 function help(){
 	global $_TARGETS_FILE;
 	global $_AUTHS_FILE;
@@ -261,17 +199,24 @@ function help(){
 COMMANDS
 
 php netdump.php [help]
-	Shows this help
+  Shows this help
+
 php netdump.php show targets
-	List targets from file '$_TARGETS_FILE'
+  List targets from file '$_TARGETS_FILE'
+
 php netdump.php show auths
-	List crendentials file '$_AUTHS_FILE'
+  List crendentials file '$_AUTHS_FILE'
+
 php netdump.php show dump target [+/-days]
-	List dumps for 'target' (case sensitive) created 'days' 
+  List dumps for 'target' (case sensitive) created 'days' 
   before/after (+/-) somedays until today, using system 
   comands like: find, sort, etc.
+
 php netdump.php run [tag]
+	Remotly dump configuration for target with 'tag	
+
 php netdump.php debug [tag]
+	Same as run with debugging
 
 LOGGING
 
@@ -306,3 +251,15 @@ function colorError($msg, $newline = "\n"){
 	global $_COLORS;
 	return $_COLORS->getColoredString($msg, "white", "red") . $newline;
 }
+
+function strvarsub($str, $vars){
+	foreach($vars as $index => $value){
+		$str = str_replace($index, $value, $str);
+	}
+	return $str;
+}
+
+function strclean($str){
+	return trim(preg_replace('/[[:^print:]]/', '', $str)); 
+}
+

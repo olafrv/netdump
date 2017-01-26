@@ -29,6 +29,7 @@ $_TARGETS_FILE = "/etc/netdump/targets.conf";
 $_AUTHS_FILE = "/etc/netdump/auths.conf";
 $_OUTFILE_ROOTDIR = "/var/lib/netdump/dumps";
 $_LOGFILE_ROOTDIR = "/var/lib/netdump/logs";
+$_TEMPLATE_ROOTDIR = "./templates";
 
 $targets = splitlines(readlines($_TARGETS_FILE), ":");
 $auths = splitlines(readlines($_AUTHS_FILE), ":");
@@ -56,19 +57,24 @@ if (isset($argv[1])){
 						if (isset($argv[3])){
 							$backtime = -7;
 							if (isset($argv[4])) $backtime = escapeshellarg($argv[4]);
-							system(
-									"find '$_OUTFILE_ROOTDIR' -type f -name '*" 
-									. escapeshellarg($argv[3]) . "*.conf' -mtime $backtime" 
-									. " -printf \"%TY-%Tm-%Td %TH:%TM:%TS% Tz\t%k KB\t%p\n\" | sort\n"
-							);
+							$system_cmd = 
+								"find '$_OUTFILE_ROOTDIR' -type f -name " 
+								. escapeshellarg('*' . $argv[3]. '*.conf') . " -mtime $backtime" 
+								. " -printf \"%TY-%Tm-%Td %TH:%TM:%TS% Tz\t%k KB\t%p\n\" | sort\n";
+							// echo $system_cmd;
+							system($system_cmd);
 						}else{	
 							help(); exit(-1);	
 						}
 						break;
+					default:
+						// Show help (bad argument)
+						help(); exit(-1);	
+						break;
 				}
+			}else{
+				help(); exit(-1);	
 			}
-			exit(0);
-			break;
 		case "run":
 			// Just run netdump
 			$_RUN = true;
@@ -90,42 +96,49 @@ if (isset($argv[1])){
 
 $errors = array();
 foreach($targets as $target){
-	list($type, $address, $tag, $authtag) = $target;
-	if (isset($argv[2]) and $tag != $argv[2]) continue; // Process specific target (tag)
-	$auth = tabget($auths, 0, $authtag); // Find the credential for the target
-	$outfile_dir = $_OUTFILE_ROOTDIR . "/" . $tag . "/" . $outfile_datedir;
-	$logfile_dir = $_LOGFILE_ROOTDIR . "/" . $tag . "/" . $outfile_datedir;
+	if (count($target)<4) continue; // Empty target lines
+	$target = array_map("strclean", $target);
+	list($template, $target_tag, $address, $auth_tag) = $target;
+	if (isset($argv[2]) and $target_tag != $argv[2]) continue; // Process specific target (tag)
+	$auth = tabget($auths, 0, $auth_tag); // Find the credential for the target
+	$outfile_dir = $_OUTFILE_ROOTDIR . "/" . $target_tag . "/" . $outfile_datedir;
+	$logfile_dir = $_LOGFILE_ROOTDIR . "/" . $target_tag . "/" . $outfile_datedir;
 	if (!is_dir($outfile_dir)) mkdir($outfile_dir, 0777, true);
 	if (!is_dir($logfile_dir)) mkdir($logfile_dir, 0777, true);
-	$outfile = $outfile_dir . "/" .  $outfile_datepfx . "_" . $tag . ".conf";
-	$logfile = $logfile_dir . "/" .  $outfile_datepfx . "_" . $tag . ".log";
+	$outfile = $outfile_dir . "/" .  $outfile_datepfx . "_" . $target_tag . ".conf";
+	$logfile = $logfile_dir . "/" .  $outfile_datepfx . "_" . $target_tag . ".log";
 	ini_set("expect.timeout", 10);
 	ini_set("expect.loguser", false);
 	ini_set("expect.match_max", 8192);
 	ini_set("expect.logfile", $logfile);
 	$result;
-	switch($type){
-		case "fortigate";
-		case "fortigate-sfg";
-			list($auth, $user, $password) = $auth;
-			$msg = "TARGET: Type: $type, Tag: $tag, Address: $address, User: $user";
-			echo $_COLORS->getColoredString($msg, "white", "blue") . "\n";
-			$result = automata_fortigate($type, $address, $user, $password, $outfile);
-			break;
-		case "cisco":
-		case "cisco-telnet":
-		case "cisco-enable":
-			$passwordEnable = "";
-			if ($type=="cisco-enable"){
-				list($auth, $user, $password, $passwordEnable) = $auth;
-			}else{
-				list($auth, $user, $password) = $auth;
-			}
-			$msg = "TARGET: Type: $type, Tag: $tag, Address: $address, User: $user";
-			echo $_COLORS->getColoredString($msg, "white", "blue") . "\n";
-			$result = automata_cisco($type, $address, $user, $password, $passwordEnable, $outfile);
-			break;
+	$template_file = $_TEMPLATE_ROOTDIR . "/" . $template . ".php";
+	if (is_file($template_file))
+	{
+		require $template_file;
+		if (isset($_TEMPLATE[$template]))
+		{
+			if ($_DEBUG) echo colorDebug("template: $template_file");
+			if ($_DEBUG) print_r($_TEMPLATE[$template]);
+			$cmd = $_TEMPLATE[$template]["cmd"]; 
+			$cases_groups = $_TEMPLATE[$template]["cases"]; 
+			$answers_groups = $_TEMPLATE[$template]["answers"]; 
+			echo colorInfo("TARGET: Template: $template, Tag: $target_tag, Address: $address, User: $auth[1]");
+			if ($_DEBUG) echo colorDebug($cmd) . "\n";
+			$result = automata_netdump($cmd, $cases_groups, $answers_groups, $outfile);
+		}
+		else
+		{
+			echo colorError("Undefined template '$template' in file '$template_file'!");
+			exit(-1);
+		}
 	}
+	else
+	{
+		echo colorError("Template file not found ($template_file)!");
+		exit(-1);
+	}
+	
 	// Result is an error?
 	$msg = "";
 	switch($result){
@@ -165,6 +178,7 @@ foreach($targets as $target){
 	}
 	echo "\n";
 }
+
 // Final message (report)
 if (!empty($errors)){
 	echo colorError("Final report of errors:");
