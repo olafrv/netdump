@@ -15,7 +15,7 @@ $_TEMPLATES["fortigate"] = array(
 );
 
 $_TEMPLATES["fortigate.old"] = array(
-	"cmd" => "scp -q -oStrictHostKeyChecking=no %user%@%address%:sys_config %outfile%"
+	"cmd" => "scp -q -oStrictHostKeyChecking=no $user@$address:sys_config %outfile%"
 	, "cases" => $_TEMPLATES["fortigate"]["cases"]
 	, "answers" => $_TEMPLATES["fortigate"][["answers"]
 );
