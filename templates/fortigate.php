@@ -1,10 +1,11 @@
 <?php
 
-$_TEMPLATES["fortigate"] = array(
-	"cmd" => "scp -q -oStrictHostKeyChecking=no $user@$address:fpt-config $outfile"
+$_TEMPLATE["fortigate"] = array(
+	"cmd" => "scp -q -oStrictHostKeyChecking=no $auth[1]@$address:fgt-config $outfile"
 	, "cases" => array(	
 		array(
 			array("password:", "password", EXP_GLOB),
+			array(".*\n", "skip", EXP_REGEXP)
 		)
 	)
 	, "answers" => array(
@@ -14,8 +15,8 @@ $_TEMPLATES["fortigate"] = array(
 	)
 );
 
-$_TEMPLATES["fortigate.old"] = array(
-	"cmd" => "scp -q -oStrictHostKeyChecking=no $user@$address:sys_config %outfile%"
-	, "cases" => $_TEMPLATES["fortigate"]["cases"]
-	, "answers" => $_TEMPLATES["fortigate"][["answers"]
+$_TEMPLATE["fortigate.old"] = array(
+	"cmd" => "scp -q -oStrictHostKeyChecking=no $auth[1]@$address:sys_config %outfile%"
+	, "cases" => $_TEMPLATE["fortigate"]["cases"]
+	, "answers" => $_TEMPLATE["fortigate"]["answers"]
 );

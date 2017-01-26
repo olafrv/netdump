@@ -101,6 +101,9 @@ foreach($targets as $target){
 	list($template, $target_tag, $address, $auth_tag) = $target;
 	if (isset($argv[2]) and $target_tag != $argv[2]) continue; // Process specific target (tag)
 	$auth = tabget($auths, 0, $auth_tag); // Find the credential for the target
+
+	echo colorInfo("TARGET: Template: $template, Tag: $target_tag, Address: $address, User: $auth[1]");
+
 	$outfile_dir = $_OUTFILE_ROOTDIR . "/" . $target_tag . "/" . $outfile_datedir;
 	$logfile_dir = $_LOGFILE_ROOTDIR . "/" . $target_tag . "/" . $outfile_datedir;
 	if (!is_dir($outfile_dir)) mkdir($outfile_dir, 0777, true);
@@ -123,20 +126,19 @@ foreach($targets as $target){
 			$cmd = $_TEMPLATE[$template]["cmd"]; 
 			$cases_groups = $_TEMPLATE[$template]["cases"]; 
 			$answers_groups = $_TEMPLATE[$template]["answers"]; 
-			echo colorInfo("TARGET: Template: $template, Tag: $target_tag, Address: $address, User: $auth[1]");
 			if ($_DEBUG) echo colorDebug($cmd) . "\n";
 			$result = automata_netdump($cmd, $cases_groups, $answers_groups, $outfile);
 		}
 		else
 		{
 			echo colorError("Undefined template '$template' in file '$template_file'!");
-			exit(-1);
+			continue;
 		}
 	}
 	else
 	{
 		echo colorError("Template file not found ($template_file)!");
-		exit(-1);
+		continue;
 	}
 	
 	// Result is an error?
@@ -163,14 +165,14 @@ foreach($targets as $target){
 		echo colorWarn("-> " . $msg);
 	}else if (!empty($msg)){
 		echo colorError("-> " . $msg);
-		$errors[] = array($tag, $address, substr($msg,0,20), basename($logfile));
+		$errors[] = array($target_tag, $address, substr($msg,0,20), basename($logfile));
 		$new_errors = true;
 	}
 	if (is_file($outfile) && filesize($outfile)>0){
 		echo colorOk("SAVED: [" . filesize($outfile)  . "B] '$outfile'");
 	}else{
 		echo colorError("SAVED: Empty! '$outfile'");
-		$errors[] = array($tag, $address, substr($msg,0,20), basename($logfile));
+		$errors[] = array($target_tag, $address, substr($msg,0,20), basename($logfile));
 		$new_errors = true;
 	}
 	if ($_DEBUG || $new_errors){

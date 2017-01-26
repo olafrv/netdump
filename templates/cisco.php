@@ -25,7 +25,7 @@ $_TEMPLATE["cisco"] = array(
 			array("user", "$auth[1]\n", 1),
 			array("password", "$auth[2]\n", 1),
 			array("enable", "enable\n", 1),
-			array("password", "$auth[3]\n", 1), // Enabled password
+			array("password", (isset($auth[3]) ? $auth[3] . "\n" : ""), 1), // Enabled password
 			array("prompt", "show run\n", 1)
 		),
 		array(
@@ -39,6 +39,6 @@ $_TEMPLATE["cisco"] = array(
 $_TEMPLATE["cisco.old"] = array(
 	"cmd" => "telnet $address",
 	"cases" => $_TEMPLATE["cisco"]["cases"],
-	"answers" => $_TEMPLATE["cisco"]["anwers"]
+	"answers" => $_TEMPLATE["cisco"]["answers"]
 );
 
