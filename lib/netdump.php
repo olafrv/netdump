@@ -263,3 +263,11 @@ function strclean($str){
 	return trim(preg_replace('/[[:^print:]]/', '', $str)); 
 }
 
+function logError($msg, $target, $logfile){
+	global $_ERRORS;	
+	list($template, $target_tag, $address, $auth_tag) = $target;
+	$_ERRORS[] = array($target_tag, $address, substr($msg,0,20), basename($logfile));
+	return colorError($msg);
+}
+
+

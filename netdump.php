@@ -30,6 +30,7 @@ $_AUTHS_FILE = "/etc/netdump/auths.conf";
 $_OUTFILE_ROOTDIR = "/var/lib/netdump/dumps";
 $_LOGFILE_ROOTDIR = "/var/lib/netdump/logs";
 $_TEMPLATE_ROOTDIR = "./templates";
+$_ERRORS = array();
 
 $targets = splitlines(readlines($_TARGETS_FILE), ":");
 $auths = splitlines(readlines($_AUTHS_FILE), ":");
@@ -94,12 +95,15 @@ if (isset($argv[1])){
 	help(); exit(-1);	
 }
 
-$errors = array();
 foreach($targets as $target){
+
 	if (count($target)<4) continue; // Empty target lines
+
 	$target = array_map("strclean", $target);
 	list($template, $target_tag, $address, $auth_tag) = $target;
+
 	if (isset($argv[2]) and $target_tag != $argv[2]) continue; // Process specific target (tag)
+
 	$auth = tabget($auths, 0, $auth_tag); // Find the credential for the target
 
 	echo colorInfo("TARGET: Template: $template, Tag: $target_tag, Address: $address, User: $auth[1]");
@@ -116,6 +120,7 @@ foreach($targets as $target){
 	ini_set("expect.logfile", $logfile);
 	$result;
 	$template_file = $_TEMPLATE_ROOTDIR . "/" . $template . ".php";
+
 	if (is_file($template_file))
 	{
 		require $template_file;
@@ -131,17 +136,17 @@ foreach($targets as $target){
 		}
 		else
 		{
-			echo colorError("Undefined template '$template' in file '$template_file'!");
+			echo logError("Undefined template '$template' in file '$template_file'!", $target, $logfile);
 			continue;
 		}
 	}
 	else
 	{
-		echo colorError("Template file not found ($template_file)!");
+		echo logError("Template file not found ($template_file)!", $target, $logfile);
 		continue;
 	}
 	
-	// Result is an error?
+	// Result code is an error?
 	$msg = "";
 	switch($result){
 		case NETDUMP_EOF:
@@ -160,31 +165,32 @@ foreach($targets as $target){
 			$msg = "Unknown case error result. Please debug!"; // Unknown error!
 			break;
 	}
-	$new_errors = false;
-	if (!empty($msg) && $result == NETDUMP_EOF){
-		echo colorWarn("-> " . $msg);
-	}else if (!empty($msg)){
-		echo colorError("-> " . $msg);
-		$errors[] = array($target_tag, $address, substr($msg,0,20), basename($logfile));
-		$new_errors = true;
+
+	// Check for other common errors?
+	if (!empty($msg))
+	{
+		if ($result == NETDUMP_EOF) echo colorWarn("-> " . $msg);
+	}else{
+		echo logError($msg, $target, $logfile);
 	}
 	if (is_file($outfile) && filesize($outfile)>0){
 		echo colorOk("SAVED: [" . filesize($outfile)  . "B] '$outfile'");
 	}else{
-		echo colorError("SAVED: Empty! '$outfile'");
-		$errors[] = array($target_tag, $address, substr($msg,0,20), basename($logfile));
-		$new_errors = true;
+		echo logError("SAVED: Empty! '$outfile'", $target, $logfile);
 	}
-	if ($_DEBUG || $new_errors){
-		colorWarn("LOG: $logfile");
+	if ($_DEBUG && !is_null(tabget($_ERRORS, 1, $target_tag)))
+	{
+		echo colorWarn("LOG: $logfile");
 	}
+
+	// Separator (Output)
 	echo "\n";
 }
 
 // Final message (report)
-if (!empty($errors)){
+if (!empty($_ERRORS)){
 	echo colorError("Final report of errors:");
-	echo tabulate($errors, array("Tag", "Addr", "Error", "Log"));
+	echo tabulate($_ERRORS, array("Tag", "Addr", "Error", "Log"));
 	echo colorWarn("Log files saved in: $_LOGFILE_ROOTDIR");
 	exit(-2);
 }else{
