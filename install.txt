@@ -40,4 +40,46 @@
   cp /etc/netdump/auths.conf.example /etc/netdump/auths.conf
   chmod 600 /etc/netdump/auths.conf
  
+* Install gitweb for git Repository visualization
+  (some install bugs are fixed bellow!):
+
+	apt-get install git gitweb
+
+* Modify /etc/gitweb.conf and change path $projectroot
+  to git repositories to /var/lib/netdump/git
+
+* Enable CGI binary processing in Apache (this a double check!):
+
+  a2enmod cgi
+
+* Modify /etc/apache2/conf.d/gitweb
+
+Alias /gitweb /usr/share/gitweb
+
+<Directory /usr/share/gitweb>
+        Options +ExecCGI +FollowSymLinks +SymLinksIfOwnerMatch
+        AllowOverride All
+        order allow,deny
+        Allow from all
+        AddHandler cgi-script cgi
+        DirectoryIndex gitweb.cgi
+</Directory>
+
+* Enable git web configuration (bug):
+
+  cd /etc/apache2/conf-available
+  ln -s ../conf.d/gitweb gitweb.conf
+	a2enconf gitweb
+
+* Restart web server
+	
+  service apache2 restart
+
+* Git repository should be available here:
   
+  http://netdump/gitweb
+
+* Enable Active Directory Auth (LDAP) in Apache:
+
+  a2enmod ldap
+  a2enmod authnz_ldap 

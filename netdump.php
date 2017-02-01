@@ -28,6 +28,7 @@ $_DEBUG = false;
 $_TARGETS_FILE = "/etc/netdump/targets.conf";
 $_AUTHS_FILE = "/etc/netdump/auths.conf";
 $_OUTFILE_ROOTDIR = "/var/lib/netdump/dumps";
+$_GITFILE_ROOTDIR = "/var/lib/netdump/git";
 $_LOGFILE_ROOTDIR = "/var/lib/netdump/logs";
 $_TEMPLATE_ROOTDIR = "./templates";
 $_ERRORS = array();
@@ -109,11 +110,17 @@ foreach($targets as $target){
 
 	// Define and create directory and file path
 	$outfile_dir = $_OUTFILE_ROOTDIR . "/" . $target_tag . "/" . $outfile_datedir;
+	$gitfile_dir = $_GITFILE_ROOTDIR . "/" . $target_tag . ".git";
 	$logfile_dir = $_LOGFILE_ROOTDIR . "/" . $target_tag . "/" . $outfile_datedir;
+
 	if (!is_dir($outfile_dir)) mkdir($outfile_dir, 0777, true);
+	if (!is_dir($gitfile_dir)) mkdir($gitfile_dir, 0777, true);
 	if (!is_dir($logfile_dir)) mkdir($logfile_dir, 0777, true);
+
 	$outfile = $outfile_dir . "/" .  $outfile_datepfx . "_" . $target_tag . ".conf";
+	$gitfile = $gitfile_dir . "/" .  $target_tag . ".conf";
 	$logfile = $logfile_dir . "/" .  $outfile_datepfx . "_" . $target_tag . ".log";
+
 	$template_file = $_TEMPLATE_ROOTDIR . "/" . $template . ".php";
 
 	// Define expect library global settings
@@ -179,6 +186,22 @@ foreach($targets as $target){
 		echo colorOk("SAVED: [" . filesize($outfile)  . "B] '$outfile'");
 	}else{
 		echo logError("Error empty file '$outfile'!", $target, $logfile);
+	}
+
+	//  
+	if (empty($_ERRORS)){
+			$cmd = "/bin/bash git.sh" 
+			. " " . escapeshellarg($gitfile_dir)
+			. " " . escapeshellarg($outfile)
+			. " " . escapeshellarg($gitfile)
+			. " " . escapeshellarg(
+				$target_tag . " configuration dumped at " . $outfile_datedir . " " . $outfile_datepfx
+			);
+			system($cmd);
+			file_put_contents(
+				 $gitfile_dir . "/.git/description"
+				, "$target_tag"
+			);
 	}
 
 	// Show log file path if there were target errors
