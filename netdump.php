@@ -40,11 +40,15 @@ $outfile_datedir = date("Y/m/d");
 $outfile_datepfx = date("Ymd_his");
 
 // Parse arguments
-if (isset($argv[1])){
-	switch($argv[1]){
+if (isset($argv[1]))
+{
+	switch($argv[1])
+	{	
 		case "show":
-			if (isset($argv[2])){
-				switch($argv[2]){
+			if (isset($argv[2]))
+			{
+				switch($argv[2])
+				{
 					case "targets":
 						// Show targets
 						echo tabulate($targets, array("Model", "Address", "Tag", "Auth"));
@@ -56,7 +60,8 @@ if (isset($argv[1])){
 						exit(0);
 						break;
 					case "dump":
-						if (isset($argv[3])){
+						if (isset($argv[3]))
+						{
 							$backtime = -7;
 							if (isset($argv[4])) $backtime = escapeshellarg($argv[4]);
 							$system_cmd = 
@@ -65,7 +70,9 @@ if (isset($argv[1])){
 								. " -printf \"%TY-%Tm-%Td %TH:%TM \t%k KB\t%p\n\" | sort\n";
 							// echo $system_cmd;
 							system($system_cmd);
-						}else{	
+						}
+						else
+						{	
 							help(); exit(-1);	
 						}
 						break;
@@ -74,7 +81,9 @@ if (isset($argv[1])){
 						help(); exit(-1);	
 						break;
 				}
-			}else{
+			}
+			else
+			{
 				help(); exit(-1);	
 			}
 		case "run":
@@ -91,12 +100,15 @@ if (isset($argv[1])){
 			help(); exit(-1);	
 			break;
 	}
-}else{
+}
+else
+{
 	// Show help (no argument)
 	help(); exit(-1);	
 }
 
-foreach($targets as $target){
+foreach($targets as $target)
+{
 
 	if (count($target)<4) continue; // Skip empty lines from targets.conf
 	$target = array_map("strclean", $target); // Trim spaces and non printable from targets.conf
@@ -110,7 +122,7 @@ foreach($targets as $target){
 
 	// Define and create directory and file path
 	$outfile_dir = $_OUTFILE_ROOTDIR . "/" . $target_tag . "/" . $outfile_datedir;
-	$gitfile_dir = $_GITFILE_ROOTDIR . "/" . $target_tag . ".git";
+	$gitfile_dir = $_GITFILE_ROOTDIR . "/" . $target_tag;
 	$logfile_dir = $_LOGFILE_ROOTDIR . "/" . $target_tag . "/" . $outfile_datedir;
 
 	if (!is_dir($outfile_dir)) mkdir($outfile_dir, 0777, true);
@@ -158,7 +170,8 @@ foreach($targets as $target){
 	
 	// Result code is an error?
 	$msg = "";
-	switch($result){
+	switch($result)
+	{
 		case NETDUMP_EOF:
 			// End of file (stream)
 			if ($_DEBUG) colorWarn("EOF");
@@ -182,14 +195,20 @@ foreach($targets as $target){
 	if (!empty($msg)) echo logError($msg, $target, $logfile);
 
 	// Dump was really saved?
-	if (is_file($outfile) && filesize($outfile)>0){
+	if (is_file($outfile) && filesize($outfile)>0)
+	{
 		echo colorOk("SAVED: [" . filesize($outfile)  . "B] '$outfile'");
-	}else{
+	}
+	else
+	{
 		echo logError("Error empty file '$outfile'!", $target, $logfile);
 	}
 
-	//  
-	if (empty($_ERRORS)){
+	// Git repo create, backup configuration add and commit actions
+	if (empty($_ERRORS))
+	{
+		if (is_file("/bin/bash"))
+		{
 			$cmd = "/bin/bash git.sh" 
 			. " " . escapeshellarg($gitfile_dir)
 			. " " . escapeshellarg($outfile)
@@ -197,11 +216,24 @@ foreach($targets as $target){
 			. " " . escapeshellarg(
 				$target_tag . " configuration dumped at " . $outfile_datedir . " " . $outfile_datepfx
 			);
-			system($cmd);
-			file_put_contents(
-				 $gitfile_dir . "/.git/description"
-				, "$target_tag"
-			);
+			exec($cmd, $cmd_output, $cmd_status); // Git actions
+			if ($cmd_status == 0)
+			{
+				file_put_contents($gitfile_dir . "/.git/description", "$target_tag"); // Update git repo name
+			}
+			else
+			{
+				if ($_DEBUG){
+					echo "$cmd" . "\n";
+					echo colorDebug($output);
+				}
+				echo logError("Error executing command '$cmd'", $target, $logfile);
+			}
+		}
+		else
+		{
+			echo logError("Bash interpreter is not present '/bin/bash'", $target, $logfile);
+		}
 	}
 
 	// Show log file path if there were target errors
@@ -212,12 +244,15 @@ foreach($targets as $target){
 }
 
 // Final message (report)
-if (!empty($_ERRORS)){
+if (!empty($_ERRORS))
+{
 	echo colorError("Final report of errors:");
 	echo tabulate($_ERRORS, array("Tag", "Addr", "Error", "Log"));
 	echo colorWarn("Log files saved in: $_LOGFILE_ROOTDIR");
 	exit(-2);
-}else{
+}
+else
+{
 	if ($_DEBUG) echo colorOk("Sucessful.");
 	exit(0);
 }
