@@ -71,7 +71,7 @@ function help(){
 COMMANDS
 
 php netdump.php [help]
-  Shows this help
+  Shows this commands help
 
 php netdump.php show target[s]
   List targets from file '$_TARGETS_FILE'

@@ -15,7 +15,7 @@ Configuration files stays in */etc/netdump*.
 
 **php netdump.php [help]**
 
-Shows this help
+Shows this commands help
 
 **php netdump.php show target[s]**
 
