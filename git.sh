@@ -1,20 +1,31 @@
 #!/bin/bash
-# $1 Git repository directory for config file backup
-# $2 Config file to backup (save) in git repository
-# $3 Commit message for saving action
+
+# Git repository path
+GREPO=$1
+# Configuration dump file path
+SRCDF=$2
+# Configuration dump file path (git)
+GITDF=$3
+# Git commit message
+GCOMM=$4
+# Debugging enabled?
+DEBUG=$5
+# Errors?
+ERROR=0
 
 git config --global user.email "netdump@localhost"
 git config --global user.name "netdump"
 
-[ -d "$1" ] || mkdir -p "$1" \
-	&& cd "$1" \
-	&& [ -d "$1/.git" ] || git init \
-	&& cp "$2" "$3"
+[ -d "$GREPO" ] || mkdir -p "$GREPO" \
+	&& cd "$GREPO" \
+	&& [ -d "$GREPO/.git" ] || git init \
+	&& cp "$SRCDF" "$GITDF"
 ERROR=$?
 
 if [ $ERROR -eq 0 ] && [ $(git diff | wc -l) -ne 0 ]
 then
-	git add -A && git commit -m "$4"
+	if [ ! -z "$DEBUG" ]; then git diff; fi
+	git add -A && git commit -m "$GCOMM"
 	ERROR=$?
 fi
 
