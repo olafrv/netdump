@@ -1,8 +1,8 @@
-# NETDUMP
+# Netdump
 
 Remote collect configuration (dumps) from networked switches, routers, firewalls and servers using expect php library
 
-# INSTALLATION
+# Installation
 
 Installation script is tested in Ubuntu 16.04 LTS. See *install.sh* for details. 
 
@@ -11,7 +11,7 @@ Default installation directory is */opt/netdump/netdump*.
 Configuration files stays in */etc/netdump*.
 
 
-# COMMANDS
+# Commands (CLI)
 
 **php netdump.php [help]**
 
@@ -21,7 +21,7 @@ Shows this help
 
 List targets from file '/etc/netdump/targets.conf'
 
-** php netdump.php show auth[s] **
+**php netdump.php show auth[s]**
 
 List crendentials file '/etc/netdump/auths.conf'
 
@@ -33,17 +33,17 @@ comands like: find, sort, etc.
 
 **php netdump.php run [tag]**
 
-Remotly dump configuration for target with 'tag	
+Remotly dump configuration for target with 'tag'
 
 **php netdump.php debug [tag]**
 
 Same as run with debugging
 
-# GIT REPOSITORY
+# Version Control (Git)
 
 * Dumps versions are saved in: */var/lib/netdump/git*
 
-# LOGGING
+# Logging
 
 * Dumps are saved in: */var/lib/netdump/dumps*
 * Logs are saved in: */var/lib/netdump/logs*
