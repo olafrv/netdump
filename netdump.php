@@ -202,7 +202,7 @@ foreach($targets as $target)
 	// Dump was really saved?
 	if (is_file($outfile) && filesize($outfile)>0)
 	{
-		echo colorDebug("dump [" . filesize($outfile)  . "]") . $outfile . "\n";
+		echo colorDebug("dump [" . filesize($outfile)  . "] ->") . $outfile . "\n";
 	}
 	else
 	{
@@ -218,14 +218,14 @@ foreach($targets as $target)
 			. " " . escapeshellarg($gitfile_dir)
 			. " " . escapeshellarg($outfile)
 			. " " . escapeshellarg($gitfile)
-			. " " . escapeshellarg(
-				$target_tag . " configuration dumped at " . $outfile_datedir . " " . $outfile_datepfx
-			);
+			. " " . escapeshellarg($target_tag . " configuration dumped at " . $outfile_datedir . " " . $outfile_datepfx)
+			. ($_DEBUG ? " 1" : "");
 			if ($_DEBUG) echo colorDebug("exec: ") . $cmd . "\n";
 			exec($cmd, $cmd_output, $cmd_status); // Git actions
 			if ($cmd_status == 0)
 			{
 				file_put_contents($gitfile_dir . "/.git/description", "$target_tag"); // Update git repo name
+				if ($_DEBUG) echo implode("\n", $cmd_output) . "\n";
 			}
 			else
 			{
