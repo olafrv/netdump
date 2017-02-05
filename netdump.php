@@ -20,10 +20,10 @@
 
 require_once 'Console/Table.php';
 require_once 'lib/Colors.php';
-require_once 'lib/netdump.php';
+require_once 'lib/common.php';
+require_once 'lib/Automata.php';
 
 $_COLORS = new Colors();
-$_RUN = false;
 $_DEBUG = false;
 $_ROOTDIR = "/opt/netdump/netdump";
 $_TARGETS_FILE = "/etc/netdump/targets.conf";
@@ -50,17 +50,20 @@ if (isset($argv[1]))
 			{
 				switch($argv[2])
 				{
+					case "target":
 					case "targets":
 						// Show targets
 						echo tabulate($targets, array("Model", "Address", "Tag", "Auth"));
 						exit(0);
 						break;
+					case "auth";
 					case "auths";
 						// Show authentication credential list
 						echo tabulate($auths, array("Auth", "Param1", "Param2", "Parm3"));
 						exit(0);
 						break;
 					case "dump":
+					case "dumps":
 						if (isset($argv[3]))
 						{
 							$backtime = -7;
@@ -89,11 +92,9 @@ if (isset($argv[1]))
 			}
 		case "run":
 			// Just run netdump
-			$_RUN = true;
 			break;
 		case "debug":
 			// Run and show debug messages
-			$_RUN = true;
 			$_DEBUG = true;
 			break;
 		default:
@@ -149,13 +150,16 @@ foreach($targets as $target)
 		require $template_file;
 		if (isset($_TEMPLATE[$template]))
 		{
-			if ($_DEBUG) echo colorDebug("template: $template_file");
-			if ($_DEBUG) print_r($_TEMPLATE[$template]);
+			echo colorDebug("template: $template_file");
+			echo print_r($_TEMPLATE[$template], true);
 			$cmd = $_TEMPLATE[$template]["cmd"]; 
 			$cases_groups = $_TEMPLATE[$template]["cases"]; 
 			$answers_groups = $_TEMPLATE[$template]["answers"]; 
-			if ($_DEBUG) echo colorDebug($cmd) . "\n";
-			$result = automata_netdump($cmd, $cases_groups, $answers_groups, $outfile);
+			echo colorDebug($cmd) . "\n";
+			$automata = new \Netdump\Automata();
+			$debug = array();
+			$result = $automata->expect($cmd, $cases_groups, $answers_groups, $outfile, $debug);
+			if ($_DEBUG) foreach($debug as $msg) echo colorDebug($msg[0]) . (isset($msg[1]) ? $msg[1] : "");
 		}
 		else
 		{
@@ -173,19 +177,19 @@ foreach($targets as $target)
 	$msg = "";
 	switch($result)
 	{
-		case NETDUMP_EOF:
+		case AUTOMATA_EOF:
 			// End of file (stream)
-			if ($_DEBUG) colorWarn("EOF");
+			echo colorDebug("EOF");
 			break;
-		case NETDUMP_TIMEOUT:
+		case AUTOMATA_TIMEOUT:
 			$msg = "Error timeout!"; // Connection or expect timeout
 			break;
-		case NETDUMP_FULLBUFFER:
+		case AUTOMATA_FULLBUFFER:
 			$msg = "Error buffer full!"; // Buffer full? => Raise expect buffer
 			break;
-		case NETDUMP_FINISHED:
+		case AUTOMATA_FINISHED:
 			// Finished (OK)
-			if ($_DEBUG) colorWarn("FINISHED");
+			echo colorDebug("finished");
 			break;
 		default:
 			$msg = "Unknown case error result. Please debug!"; // Unknown error!
@@ -198,7 +202,7 @@ foreach($targets as $target)
 	// Dump was really saved?
 	if (is_file($outfile) && filesize($outfile)>0)
 	{
-		echo colorOk("SAVED: [" . filesize($outfile)  . "B] '$outfile'");
+		echo colorDebug("dump [" . filesize($outfile)  . "]") . $outfile . "\n";
 	}
 	else
 	{
@@ -217,6 +221,7 @@ foreach($targets as $target)
 			. " " . escapeshellarg(
 				$target_tag . " configuration dumped at " . $outfile_datedir . " " . $outfile_datepfx
 			);
+			if ($_DEBUG) echo colorDebug("exec: ") . $cmd . "\n";
 			exec($cmd, $cmd_output, $cmd_status); // Git actions
 			if ($cmd_status == 0)
 			{
@@ -224,16 +229,12 @@ foreach($targets as $target)
 			}
 			else
 			{
-				if ($_DEBUG){
-					echo "$cmd" . "\n";
-					echo colorDebug(implode("\n", $cmd_output));
-				}
-				echo logError("Error ($cmd_status) executing command '$cmd'", $target, $logfile);
+				echo logError("Error ($cmd_status) executing '$cmd' trace: " . implode("\n", $cmd_output), $target, $logfile);
 			}
 		}
 		else
 		{
-			echo logError("Bash interpreter is not present '/bin/bash'", $target, $logfile);
+			echo logError("Bash unavailable '/bin/bash'", $target, $logfile);
 		}
 	}
 
@@ -254,7 +255,6 @@ if (!empty($_ERRORS))
 }
 else
 {
-	if ($_DEBUG) echo colorOk("Sucessful.");
 	exit(0);
 }
 
