@@ -218,7 +218,7 @@ foreach($targets as $target)
 			. " " . escapeshellarg($gitfile_dir)
 			. " " . escapeshellarg($outfile)
 			. " " . escapeshellarg($gitfile)
-			. " " . escapeshellarg($target_tag . " configuration dumped at " . $outfile_datedir . " " . $outfile_datepfx)
+			. " " . escapeshellarg($target_tag . " dumped at " . $outfile_datepfx)
 			. ($_DEBUG ? " 1" : "");
 			if ($_DEBUG) echo colorDebug("exec: ") . $cmd . "\n";
 			exec($cmd, $cmd_output, $cmd_status); // Git actions
