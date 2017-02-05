@@ -1,12 +1,20 @@
 #!/bin/bash
 
-[ $(id -u) -eq 0 ] || echo "Must be run as root" && exit 0;
+id -u
+
+if [ $(id -u) -ne 0 ]
+then
+	echo "Must be run as root"
+	exit 2
+fi
+
+adduser --system --disabled-password --home /opt/netdump netdump
 
 # http://askubuntu.com/questions/761713/how-can-i-downgrade-from-php-7-to-php-5-6-on-ubuntu-16-04
 
-add-apt-repository ppa:ondrej/php
-apt-get update
-apt-get install php5.6 php5.6-dev php5.6-mysql php5.6-mbstring libapache2-mod-php5.6 php5.6-xml
+add-apt-repository -y ppa:ondrej/php
+apt-get -y update
+apt-get -y install php5.6 php5.6-dev php5.6-mysql php5.6-mbstring libapache2-mod-php5.6 php5.6-xml
 
 # From php5.6 to php7.0 :
 #  Apache:
@@ -28,10 +36,20 @@ apt-get -y install expect expect-dev
 pear install Console_Table
 pecl install channel://pecl.php.net/expect-0.3.3
 echo "extension = expect.so" | tee /etc/php/5.6/cli/conf.d/expect.ini
-mkdir /etc/netdump
-[ -f conf/targets.conf.example ] || cp conf/targets.conf.example /etc/netdump/targets.conf
-[ -f conf/auth.conf.example ] || cp conf/auths.conf.example /etc/netdump/auths.conf
+
+[ -d /etc/netdump ] || mkdir /etc/netdump
+[ -d /var/lib/netdump ] || mkdir /var/lib/netdump
+
+[ -f /etc/netdump/targets.conf ] || cp conf/targets.conf.example /etc/netdump/targets.conf
+[ -f /etc/netdump/auths.conf ] || cp conf/auths.conf.example /etc/netdump/auths.conf
 chmod 600 /etc/netdump/auths.conf
+
+chown -R netdump:netdump /etc/netdump
+chown -R netdump:netdump /var/lib/netdump
+chown -R netdump:netdump /opt/netdump
+
+chmod +x /opt/netdump/git.sh
+
 apt-get -y install git gitweb
 a2enmod cgi
 a2enmod ldap

@@ -13,5 +13,6 @@
 #>> 	"Building configuration..." {}
 #>> }"
 ##
-auth1:dummy:123456
-auth9:joe:cracked99
+auth0:root:password
+#auth1:dummy:123456
+#auth9:joe:cracked99

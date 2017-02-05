@@ -25,6 +25,7 @@ require_once 'lib/netdump.php';
 $_COLORS = new Colors();
 $_RUN = false;
 $_DEBUG = false;
+$_ROOTDIR = "/opt/netdump/netdump";
 $_TARGETS_FILE = "/etc/netdump/targets.conf";
 $_AUTHS_FILE = "/etc/netdump/auths.conf";
 $_OUTFILE_ROOTDIR = "/var/lib/netdump/dumps";
@@ -209,7 +210,7 @@ foreach($targets as $target)
 	{
 		if (is_file("/bin/bash"))
 		{
-			$cmd = "/bin/bash git.sh" 
+			$cmd = "/bin/bash $_ROOTDIR/git.sh" 
 			. " " . escapeshellarg($gitfile_dir)
 			. " " . escapeshellarg($outfile)
 			. " " . escapeshellarg($gitfile)
@@ -225,9 +226,9 @@ foreach($targets as $target)
 			{
 				if ($_DEBUG){
 					echo "$cmd" . "\n";
-					echo colorDebug($output);
+					echo colorDebug(implode("\n", $cmd_output));
 				}
-				echo logError("Error executing command '$cmd'", $target, $logfile);
+				echo logError("Error ($cmd_status) executing command '$cmd'", $target, $logfile);
 			}
 		}
 		else
