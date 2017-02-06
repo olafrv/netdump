@@ -10,7 +10,7 @@ fi
 
 # Netdump default user
 addgroup --system netdump
-adduser --system --disabled-password --home /opt/netdump netdump --ingroup netdump
+adduser --system --disabled-password --home /opt/netdump netdump --ingroup netdump --shell /bin/bash
 
 # We need git
 apt-get -y install git
