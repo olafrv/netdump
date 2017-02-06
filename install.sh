@@ -20,6 +20,14 @@ date
 alias netdump='php /opt/netdump/netdump/netdump.php'
 END
 
+[ -d /opt/netdump/.ssh ] || mkdir /opt/netdump/.ssh
+cat - > /opt/netdump/.ssh/config <<END
+# https://www.openssh.com/legacy.html
+Host *
+        KexAlgorithms +diffie-hellman-group1-sha1
+        HostKeyAlgorithms +ssh-dss
+END
+
 # We need git
 apt-get -y install git
 
@@ -65,7 +73,6 @@ echo "extension = expect.so" | tee /etc/php/5.6/cli/conf.d/expect.ini
 
 # Library to print tables in terminal
 pear install Console_Table
-
 
 # Default directories
 [ -d /etc/netdump ] || mkdir /etc/netdump

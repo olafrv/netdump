@@ -1,11 +1,12 @@
 <?php
 
-# For more information about the weak SSH option:
-# -oKexAlgorithms=+diffie-hellman-group1-sha1
-# Visit: https://www.openssh.com/legacy.html
+# Information about weak SSH options configured
+# by the installer in ~/.ssh/config are described
+# in https://www.openssh.com/legacy.html for
+# compatibility with old IOS ssh servers
 
 $_TEMPLATE["cisco"] = array(
-	"cmd" => "ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 -q -oStrictHostKeyChecking=no $auth[1]@$address",
+	"cmd" => "ssh -q -oStrictHostKeyChecking=no $auth[1]@$address",
 	"cases" => array(
 		array(
 			array(".*@.*'s [Pp]assword:", "sshpassword", EXP_REGEXP),
