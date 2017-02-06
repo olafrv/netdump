@@ -9,7 +9,15 @@ then
 fi
 
 # Netdump default user
-adduser --system --disabled-password --home /opt/netdump netdump
+addgroup --system netdump
+adduser --system --disabled-password --home /opt/netdump netdump --ingroup netdump
+
+# We need git
+apt-get -y install git
+
+# Download netdump
+[ -d /opt/netdump ] || mkdir /opt/netdump
+git clone https://github.com/olafrv/netdump.git /opt/netdump/netdump
 
 # We need find, sort, colordiff, more
 apt-get -y install coreutils findutils colordiff util-linux
@@ -47,13 +55,14 @@ echo "extension = expect.so" | tee /etc/php/5.6/cli/conf.d/expect.ini
 # Library to print tables in terminal
 pear install Console_Table
 
+
 # Default directories
 [ -d /etc/netdump ] || mkdir /etc/netdump
 [ -d /var/lib/netdump ] || mkdir /var/lib/netdump
 
 # Default config files
-[ -f /etc/netdump/targets.conf ] || cp conf/targets.conf.example /etc/netdump/targets.conf
-[ -f /etc/netdump/auths.conf ] || cp conf/auths.conf.example /etc/netdump/auths.conf
+[ -f /etc/netdump/targets.conf ] || cp /opt/netdump/netdump/conf/targets.conf.example /etc/netdump/targets.conf
+[ -f /etc/netdump/auths.conf ] || cp /opt/netdump/netdump/conf/auths.conf.example /etc/netdump/auths.conf
 chmod 600 /etc/netdump/auths.conf
 
 # Default permissions
