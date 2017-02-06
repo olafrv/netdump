@@ -60,6 +60,13 @@ Same as run with debugging
 
 * Apache LDAP / Active Directory authentication [git/gitweb.example.conf](https://github.com/olafrv/netdump/tree/master/git)
 
+# Backup (Global)
+
+This are the most important directories to backup outside from netdump server:
+
+* */etc* (/etc/apache2 & /etc/netdump)
+* */opt/netdump*
+* */var/lib/netdump*
 
 # Logging
 
