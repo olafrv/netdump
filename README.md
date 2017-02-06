@@ -17,6 +17,16 @@ Configuration files stays in */etc/netdump*.
 
 # Commands (CLI)
 
+WARNING: **netdump must not be run as superuser (root)**.
+
+First, change to the user *netdump* created by the installer:
+
+```
+sudo su -
+```
+
+Then you can issue the following commands:
+
 **php netdump.php [help]**
 
 Shows this commands help

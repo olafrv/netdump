@@ -40,6 +40,12 @@ $auths = splitlines(readlines($_AUTHS_FILE), ":");
 $outfile_datedir = date("Y/m/d");
 $outfile_datepfx = date("Ymd_his");
 
+if (posix_geteuid()==0)
+{
+	echo "Must not be run as root\n";
+	exit(2);
+}
+
 // Parse arguments
 if (isset($argv[1]))
 {
