@@ -17,46 +17,63 @@ Configuration files stays in */etc/netdump*.
 
 # Commands (CLI)
 
-**WARNING: netdump must not be run as superuser (root)**.
+**WARNING: Netdump PHP script can't be run as superuser (root)**.
 
-First, change to the user *netdump* created by the installer:
+First, from **root** change to the user *netdump*:
 
 ```
-sudo su -
+sudo su - netdump
 ```
-
 Then you can issue the following commands:
+
+## Help
 
 **php netdump.php [help]**
 
 Shows this commands help
 
+## show
+
+### show targets
+
 **php netdump.php show target[s]**
 
 List targets from file '/etc/netdump/targets.conf'
 
+### show auths
+
 **php netdump.php show auth[s]**
 
 List crendentials file '/etc/netdump/auths.conf'
+
+### show dumps
 
 **php netdump.php show dump[s] target [+/-days]**
 
 List dumps for 'target' (case sensitive) created 'days' 
 before/after (+/-) somedays until today
 
+### show commits
+
 **php netdump.php show commit[s] target**
 
 List commits made to git control version repository
 in '/var/lib/netdump/git' for 'target' (case sensitive)
+
+### show diffs
 
 **php netdump.php show diff[s] target**
 
 List changed (lines) between commits made to git control
 version repository for 'target' (case sensitive)
 
+# run
+
 **php netdump.php run [tag]**
 
 Remotly dump configuration for target with 'tag'
+
+# debug
 
 **php netdump.php debug [tag]**
 
