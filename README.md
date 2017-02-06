@@ -54,11 +54,11 @@ Same as run with debugging
 
 # Version Control (Git)
 
-* Dumps versions are saved in: */var/lib/netdump/git* an available via GitWeb (/gitweb) in the same server.
+* Dumps versions are saved in: */var/lib/netdump/git* an available via [GitWeb](https://git-scm.com/docs/gitweb) (/gitweb) in the same server.
 
-* [Protect access to GitWeb using Apache Auth] (http://httpd.apache.org/docs/2.0/mod/mod_auth.html)
+* Protect access to GitWeb using [Apache Auth](http://httpd.apache.org/docs/2.0/mod/mod_auth.html)
 
-* Apache LDAP / Active Directory authentication [git/gitweb.example.conf] (https://github.com/olafrv/netdump/tree/master/git)
+* Apache LDAP / Active Directory authentication [git/gitweb.example.conf](https://github.com/olafrv/netdump/tree/master/git)
 
 
 # Logging
