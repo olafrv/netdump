@@ -71,7 +71,7 @@ if (isset($argv[1]))
 							$system_cmd = 
 								"find '$_OUTFILE_ROOTDIR' -type f -name " 
 								. escapeshellarg('*' . $argv[3]. '*.conf') . " -mtime $backtime" 
-								. " -printf \"%TY-%Tm-%Td %TH:%TM \t%k KB\t%p\n\" | sort\n";
+								. " -printf \"%TY-%Tm-%Td %TH:%TM \t%k KB\t%p\n\" | sort -r\n";
 							// echo $system_cmd;
 							system($system_cmd);
 						}
