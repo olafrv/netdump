@@ -17,7 +17,7 @@ Configuration files stays in */etc/netdump*.
 
 # Commands (CLI)
 
-WARNING: **netdump must not be run as superuser (root)**.
+**WARNING: netdump must not be run as superuser (root)**.
 
 First, change to the user *netdump* created by the installer:
 
