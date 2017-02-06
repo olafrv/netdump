@@ -31,7 +31,7 @@ $_AUTHS_FILE = "/etc/netdump/auths.conf";
 $_OUTFILE_ROOTDIR = "/var/lib/netdump/dumps";
 $_GITFILE_ROOTDIR = "/var/lib/netdump/git";
 $_LOGFILE_ROOTDIR = "/var/lib/netdump/logs";
-$_TEMPLATE_ROOTDIR = "./templates";
+$_TEMPLATE_ROOTDIR = $_ROOTDIR . "/templates";
 $_ERRORS = array();
 
 $targets = splitlines(readlines($_TARGETS_FILE), ":");

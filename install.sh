@@ -17,7 +17,7 @@ cat - > /opt/netdump/.bash_profile <<END
 cd
 pwd
 date
-alias netdump='php netdump.php'
+alias netdump='php /opt/netdump/netdump/netdump.php'
 END
 
 # We need git
