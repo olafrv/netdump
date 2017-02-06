@@ -11,6 +11,9 @@ fi
 # Netdump default user
 adduser --system --disabled-password --home /opt/netdump netdump
 
+# We need find, sort, colordiff, more
+apt-get -y install coreutils findutils colordiff util-linux
+
 # We need php < 7.0!
 # http://askubuntu.com/questions/761713/how-can-i-downgrade-from-php-7-to-php-5-6-on-ubuntu-16-04
 add-apt-repository -y ppa:ondrej/php

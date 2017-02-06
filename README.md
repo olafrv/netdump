@@ -28,8 +28,7 @@ List crendentials file '/etc/netdump/auths.conf'
 **php netdump.php show dump[s] target [+/-days]**
 
 List dumps for 'target' (case sensitive) created 'days' 
-before/after (+/-) somedays until today, using system 
-comands like: find, sort, etc.
+before/after (+/-) somedays until today
 
 **php netdump.php show commit[s] target**
 
