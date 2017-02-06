@@ -201,7 +201,7 @@ foreach($targets as $target)
 		if (isset($_TEMPLATE[$template]))
 		{
 			echo colorDebug("template: $template_file");
-			echo print_r($_TEMPLATE[$template], true);
+			if ($_DEBUG) echo print_r($_TEMPLATE[$template], true);
 			$cmd = $_TEMPLATE[$template]["cmd"]; 
 			$cases_groups = $_TEMPLATE[$template]["cases"]; 
 			$answers_groups = $_TEMPLATE[$template]["answers"]; 
