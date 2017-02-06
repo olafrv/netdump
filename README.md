@@ -4,7 +4,11 @@ Remote collect configuration (dumps) from networked switches, routers, firewalls
 
 # Installation
 
-Installation script is tested in Ubuntu 16.04 LTS. See *install.sh* for details. 
+Installation script is tested in Ubuntu 16.04 LTS, run installer with:
+
+```bash
+curl https://raw.githubusercontent.com/olafrv/netdump/master/install.sh | bash -
+```
 
 Default installation directory is */opt/netdump/netdump*.
 
