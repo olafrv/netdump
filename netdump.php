@@ -185,22 +185,33 @@ foreach($targets as $target)
 	$gitfile = $gitfile_dir . "/" .  $target_tag . ".conf";
 	$logfile = $logfile_dir . "/" .  $outfile_datepfx . "_" . $target_tag . ".log";
 
-	$template_file = $_TEMPLATE_ROOTDIR . "/" . $template . ".php";
-
 	// Define expect library global settings
-	ini_set("expect.timeout", 10);			// Expect input timeout?
+	ini_set("expect.timeout", 30);			// Expect input timeout?
 	ini_set("expect.loguser", false);		// Expect input printed to stdout?
 	ini_set("expect.match_max", 8192);	// Expect input buffer size?
 	ini_set("expect.logfile", $logfile);// Expect session (input/output) log?
 
 	$result; // Result code from expect execution
 
-	if (is_file($template_file))
+	$dependencies = explode(".", $template);
+	$depends = array();
+	foreach($dependencies as $dependency)
 	{
-		require $template_file;
-		if (isset($_TEMPLATE[$template]))
-		{
+		$depends[] = $dependency;
+		$template_file = $_TEMPLATE_ROOTDIR . "/" . implode(".", $depends) . ".php";
+		if (is_file($template_file)){
 			echo colorDebug("template: $template_file");
+			require_once $template_file;
+		}
+		else
+		{
+			echo logError("Template file not found ($template_file)!", $target, $logfile);
+			continue;
+		}
+	}
+
+	if (isset($_TEMPLATE[$template]))
+	{
 			if ($_DEBUG) echo print_r($_TEMPLATE[$template], true);
 			$cmd = $_TEMPLATE[$template]["cmd"]; 
 			$cases_groups = $_TEMPLATE[$template]["cases"]; 
@@ -210,19 +221,13 @@ foreach($targets as $target)
 			$debug = array();
 			$result = $automata->expect($cmd, $cases_groups, $answers_groups, $outfile, $debug);
 			if ($_DEBUG) foreach($debug as $msg) echo colorDebug($msg[0]) . (isset($msg[1]) ? $msg[1] : "");
-		}
-		else
-		{
-			echo logError("Undefined template '$template' in file '$template_file'!", $target, $logfile);
-			continue;
-		}
 	}
 	else
 	{
-		echo logError("Template file not found ($template_file)!", $target, $logfile);
+		echo logError("Undefined template '$template' in file '$template_file'!", $target, $logfile);
 		continue;
 	}
-	
+
 	// Result code is an error?
 	$msg = "";
 	switch($result)
@@ -279,7 +284,7 @@ foreach($targets as $target)
 			}
 			else
 			{
-				echo logError("Error ($cmd_status) executing '$cmd' trace: " . implode("\n", $cmd_output), $target, $logfile);
+				echo logError("Error ($cmd_status) exec '$cmd' trace: " . implode("\n", $cmd_output), $target, $logfile);
 			}
 		}
 		else
