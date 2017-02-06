@@ -64,6 +64,7 @@ function help(){
 	global $_TARGETS_FILE;
 	global $_AUTHS_FILE;
 	global $_OUTFILE_ROOTDIR;
+	global $_GITFILE_ROOTDIR;
 	global $_LOGFILE_ROOTDIR;
 
 			echo 
@@ -83,6 +84,14 @@ php netdump.php show dump[s] target [+/-days]
   List dumps for 'target' (case sensitive) created 'days' 
   before/after (+/-) somedays until today, using system 
   comands like: find, sort, etc.
+
+php netdump.php show commit[s] target
+  List commits made to git control version repository
+  in '$_GITFILE_ROOTDIR' for 'target' (case sensitive)
+
+php netdump.php show diff[s] target
+  List changed (lines) between commits made to git control
+  version repository for 'target' (case sensitive)
 
 php netdump.php run [tag]
 	Remotly dump configuration for target with 'tag	

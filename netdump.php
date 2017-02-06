@@ -80,6 +80,50 @@ if (isset($argv[1]))
 							help(); exit(-1);	
 						}
 						break;
+					case "commit":
+					case "commits":
+						if (isset($argv[3]))
+						{
+							if (is_file("/bin/bash"))
+							{
+								$gitfile_dir = $_GITFILE_ROOTDIR . "/" . $argv[3];
+								$cmd = "/bin/bash $_ROOTDIR/git/git-log.sh" . " " . escapeshellarg($gitfile_dir);
+								if ($_DEBUG) echo colorDebug("exec: ") . $cmd . "\n";
+								exec($cmd, $cmd_output, $cmd_status); // Git actions
+								echo implode("\n", $cmd_output) . "\n";
+							}
+							else
+							{
+								echo logError("Bash unavailable '/bin/bash'", $target, $logfile);
+							}
+						}
+						else
+						{	
+							help(); exit(-1);	
+						}
+						break;
+					case "diff":
+					case "diffs":
+						if (isset($argv[3]))
+						{
+							if (is_file("/bin/bash"))
+							{
+								$gitfile_dir = $_GITFILE_ROOTDIR . "/" . $argv[3];
+								$cmd = "/bin/bash $_ROOTDIR/git/git-diff.sh" . " " . escapeshellarg($gitfile_dir);
+								if ($_DEBUG) echo colorDebug("exec: ") . $cmd . "\n";
+								exec($cmd, $cmd_output, $cmd_status); // Git actions
+								echo implode("\n", $cmd_output) . "\n";
+							}
+							else
+							{
+								echo logError("Bash unavailable '/bin/bash'", $target, $logfile);
+							}
+						}
+						else
+						{	
+							help(); exit(-1);	
+						}
+						break;
 					default:
 						// Show help (bad argument)
 						help(); exit(-1);	
@@ -214,7 +258,7 @@ foreach($targets as $target)
 	{
 		if (is_file("/bin/bash"))
 		{
-			$cmd = "/bin/bash $_ROOTDIR/git.sh" 
+			$cmd = "/bin/bash $_ROOTDIR/git/git.sh" 
 			. " " . escapeshellarg($gitfile_dir)
 			. " " . escapeshellarg($outfile)
 			. " " . escapeshellarg($gitfile)

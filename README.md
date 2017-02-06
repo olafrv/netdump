@@ -31,6 +31,16 @@ List dumps for 'target' (case sensitive) created 'days'
 before/after (+/-) somedays until today, using system 
 comands like: find, sort, etc.
 
+**php netdump.php show commit[s] target**
+
+List commits made to git control version repository
+in '/var/lib/netdump/git' for 'target' (case sensitive)
+
+**php netdump.php show diff[s] target**
+
+List changed (lines) between commits made to git control
+version repository for 'target' (case sensitive)
+
 **php netdump.php run [tag]**
 
 Remotly dump configuration for target with 'tag'
