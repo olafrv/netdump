@@ -25,7 +25,7 @@ apt-get -y install git
 
 # Download netdump
 [ -d /opt/netdump ] || mkdir /opt/netdump
-git clone https://github.com/olafrv/netdump.git /opt/netdump/netdump
+[ -d /opt/netdump/netdump ] || git clone https://github.com/olafrv/netdump.git /opt/netdump/netdump
 
 # We need find, sort, colordiff, more
 apt-get -y install coreutils findutils colordiff util-linux
@@ -35,7 +35,10 @@ apt-get -y install coreutils findutils colordiff util-linux
 add-apt-repository -y ppa:ondrej/php
 apt-get -y update
 apt-get -y install php5.6 php5.6-dev php5.6-mysql php5.6-mbstring libapache2-mod-php5.6 php5.6-xml
+apt-get -y install apache2
 apt-get -y install php-pear
+
+rm -f /var/www/html/index.html
 
 # Switch from php5.6 to php7.0 :
 #  Apache:
@@ -71,7 +74,7 @@ pear install Console_Table
 # Default config files
 [ -f /etc/netdump/targets.conf ] || cp /opt/netdump/netdump/conf/targets.conf.example /etc/netdump/targets.conf
 [ -f /etc/netdump/auths.conf ] || cp /opt/netdump/netdump/conf/auths.conf.example /etc/netdump/auths.conf
-chmod 600 /etc/netdump/auths.conf
+chmod 600 /etc/netdump/*
 
 # Default permissions
 chown -R netdump:netdump /etc/netdump
