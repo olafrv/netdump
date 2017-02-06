@@ -14,13 +14,25 @@ DEBUG=$5
 ERROR=0
 
 git config --global user.email "netdump@localhost"
-git config --global user.name "netdump"
+git config --global user.name  "netdump"
 
-[ -d "$GREPO" ] || mkdir -p "$GREPO" \
-	&& cd "$GREPO" \
-	&& [ -d "$GREPO/.git" ] || git init \
-	&& cp "$SRCDF" "$GITDF"
+[ -d "$GREPO" ] || mkdir -p "$GREPO"
 ERROR=$?
+
+if [ $ERROR -eq 0 ] && [ -d "$GREPO" ]
+then
+	cd "$GREPO" 
+	if [ ! -z "$DEBUG" ]; then echo "Initial commit: $GCOMM"; fi
+	[ -d "$GREPO/.git" ] || git init
+	ERROR=$?
+fi
+
+if [ $ERROR -eq 0 ] && [ ! -f "$GITDF" ]
+then
+	if [ ! -z "$DEBUG" ]; then echo "Initial commit: $GCOMM"; fi
+	cp "$SRCDF" "$GITDF" && git add -A && git commit -m "$GCOMM"
+	ERROR=$?
+fi
 
 if [ $ERROR -eq 0 ] && [ $(git diff | wc -l) -ne 0 ]
 then

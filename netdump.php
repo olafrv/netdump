@@ -43,7 +43,7 @@ $outfile_datepfx = date("Ymd_his");
 if (posix_geteuid()==0)
 {
 	echo "Must not be run as root\n";
-	exit(2);
+//	exit(2);
 }
 
 // Parse arguments
