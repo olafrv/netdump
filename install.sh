@@ -12,6 +12,14 @@ fi
 addgroup --system netdump
 adduser --system --disabled-password --home /opt/netdump netdump --ingroup netdump --shell /bin/bash
 
+cat - > /opt/netdump/.bash_profile <<END
+#!/bin/bash
+cd
+pwd
+date
+alias netdump='php netdump.php'
+END
+
 # We need git
 apt-get -y install git
 
