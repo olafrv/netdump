@@ -28,7 +28,7 @@ function readlines($file, $skip = "#"){
 	$lines = array();
 	$handle = fopen($file, "r");
 	while (($line = fgets($handle)) !== false){
-		if ($line[0]!="#") $lines[] = $line;
+		if ($line[0]!="#" && strlen(trim($line))>0) $lines[] = $line;
 	}
 	fclose($handle);
 	return $lines;
