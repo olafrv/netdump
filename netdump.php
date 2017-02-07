@@ -19,13 +19,16 @@
  *    along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'Console/Table.php';
-require_once 'lib/Colors.php';
-require_once 'lib/common.php';
-require_once 'lib/Automata.php';
+require 'Console/Table.php';
+require 'lib/Colors.php';
+require 'PHPMailer/PHPMailerAutoload.php';
+require 'lib/common.php';
+require 'lib/Automata.php';
+require '/etc/netdump/mail.php';
 
 $_COLORS = new Colors();
 $_DEBUG = false;
+$_MAIL_ACTIVE = false;
 $_ROOTDIR = "/opt/netdump/netdump";
 $_TARGETS_FILE = "/etc/netdump/targets.conf";
 $_AUTHS_FILE = "/etc/netdump/auths.conf";
@@ -34,6 +37,7 @@ $_GITFILE_ROOTDIR = "/var/lib/netdump/git";
 $_LOGFILE_ROOTDIR = "/var/lib/netdump/logs";
 $_TEMPLATE_ROOTDIR = $_ROOTDIR . "/templates";
 $_ERRORS = array();
+$_EXITCODE = 0;
 
 $targets = splitlines(readlines($_TARGETS_FILE), ":");
 $auths = splitlines(readlines($_AUTHS_FILE), ":");
@@ -58,19 +62,16 @@ if (isset($argv[1]))
 				switch($argv[2])
 				{
 					case "target":
-					case "targets":
 						// Show targets
 						echo tabulate($targets, array("Template", "Address", "Tag", "Auth"));
 						exit(0);
 						break;
 					case "auth";
-					case "auths";
 						// Show authentication credential list
 						echo tabulate($auths, array("Auth", "Param1", "Param2", "Parm3"));
 						exit(0);
 						break;
 					case "dump":
-					case "dumps":
 						if (isset($argv[3]))
 						{
 							$backtime = -7;
@@ -88,7 +89,6 @@ if (isset($argv[1]))
 						}
 						break;
 					case "commit":
-					case "commits":
 						if (isset($argv[3]))
 						{
 							if (is_file("/bin/bash"))
@@ -110,7 +110,6 @@ if (isset($argv[1]))
 						}
 						break;
 					case "diff":
-					case "diffs":
 						if (isset($argv[3]))
 						{
 							if (is_file("/bin/bash"))
@@ -146,9 +145,11 @@ if (isset($argv[1]))
 				help(); exit(-1);	
 			}
 		case "run":
+		case "runmail":
 			// Just run netdump
 			break;
 		case "debug":
+		case "debugmail":
 			// Run and show debug messages
 			$_DEBUG = true;
 			break;
@@ -164,6 +165,8 @@ else
 	help(); exit(-1);	
 }
 
+if (isset($argv[1]) && ($argv[1]=="runmail" || $argv[1] = "debugmail")) $_MAIL_ACTIVE = true;
+	
 foreach($targets as $target)
 {
 
@@ -308,15 +311,38 @@ foreach($targets as $target)
 }
 
 // Final message (report)
+
 if (!empty($_ERRORS))
 {
-	echo colorError("Final report of errors:");
-	echo tabulate($_ERRORS, array("Tag", "Addr", "Error", "Log"));
-	echo colorWarn("Log files saved in: $_LOGFILE_ROOTDIR");
-	exit(-2);
-}
-else
-{
-	exit(0);
+	$report .= colorError("Final report of errors:");
+	$report .= tabulate($_ERRORS, array("Tag", "Addr", "Error", "Log"));
+	$rerpot .= colorWarn("Log files saved in: $_LOGFILE_ROOTDIR");
+	$_EXITCODE = -2;
+}else{
+	$report = "No errors where reported.";
 }
 
+$body = $report;
+$subject = "netdump [OK]";
+if ($_EXITCODE != 0) $subject = "netdump [ERROR " . count($_ERRORS) . "]";
+$subject .= " - $outfile_datepfx";
+
+if ($_MAIL_ACTIVE){
+	$sent = sendmail(
+		$_MAIL["from"],
+		$_MAIL["to"],
+		$subject,
+		$body,
+		$_MAIL["server"],
+		$_MAIL["port"],
+		$_MAIL["secure"],
+		$_MAIL["user"],
+		$_MAIL["password"]
+	);
+	if (!$sent["status"]){
+		echo colorError($sent["error"]) . "\n";
+		logToSyslog($sent["error"], LOG_ERR);
+	}
+}
+
+exit($_EXITCODE);

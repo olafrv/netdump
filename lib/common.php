@@ -148,7 +148,51 @@ function logError($msg, $target, $logfile){
 	global $_ERRORS;	
 	list($template, $target_tag, $address, $auth_tag) = $target;
 	$_ERRORS[] = array($target_tag, $address, substr($msg,0,20), basename($logfile));
+	logToSyslog($msg); 	
 	return colorError($msg);
 }
 
+function logToSyslog($message, $level = LOG_INFO){
+	$now = DateTime::createFromFormat('U.u', microtime(true));
+	$nowf = $now->format("Y-m-d H:i:s.u");
+	openlog("netdump", LOG_PID | LOG_PERROR | LOG_CONS, LOG_SYSLOG);
+	syslog($level, "$nowf $message");
+	closelog();
+}
 
+function sendmail(
+	$from, $to, $subject, $body, $servers, 
+	$port = 25, $secure = NULL, $user = NULL, $password = NULL
+)
+{
+	global $_DEBUG;
+
+	$mail = new PHPMailer;
+
+	if ($_DEBUG) $mail->SMTPDebug = 3; // Enable verbose debug output
+
+	$mail->Host = $servers; // Semicolon ; separated
+	$mail->isSMTP();                                    
+	if (!empty($user)) $mail->Username = $user;
+	if (!empty($password)) $mail->Password = $password;
+	if (!empty($user) && !empty($password)) $mail->SMTPAuth = true;                            
+	if (!empty($secure)) $mail->SMTPSecure = $secure; // tls or ssl
+	$mail->SMTPOptions['ssl'] = array(
+        'verify_peer' => false,
+        'verify_peer_name' => false,
+        'allow_self_signed' => true
+	);
+	$mail->Port = $port; 
+
+	$mail->setFrom($from); // Array of email address and full name 
+	$mail->addAddress($to); // Array of email address and full name
+
+	$mail->Subject = $subject;
+	$mail->Body    = $body;
+	$mail->AltBody = $body;
+
+	return array(
+		"status" => $mail->send(), 
+		"error" => $mail->ErrorInfo
+	);
+}

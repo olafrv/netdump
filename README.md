@@ -38,14 +38,14 @@ netdump [help]
 
 List targets from file '/etc/netdump/targets.conf':
 ```
-netdump show target[s] [| more]
+netdump show target [| more]
 ```
 
 ### show auths
 
 List crendentials file '/etc/netdump/auths.conf':
 ```
-netdump show auth[s] [| more]
+netdump show auth [| more]
 ```
 
 ### show dumps
@@ -53,7 +53,7 @@ netdump show auth[s] [| more]
 List dumps for 'target' (case sensitive) created 'days' 
 before/after (+/-) until today:
 ```
-netdump show dump[s] target [+/-days] [| more]
+netdump show dump target [+/-days] [| more]
 ```
 
 ### show commits
@@ -61,19 +61,19 @@ netdump show dump[s] target [+/-days] [| more]
 List commits made to git control version repository
 in '/var/lib/netdump/git' for 'target' (case sensitive):
 ```
-netdump show commit[s] target [| more] 
+netdump show commit target [| more] 
 ```
 
 The output include: commit id, date and comment.
 
 Show the number of commits:
 ```
-netdump show commit[s] target | wc -l
+netdump show commit target | wc -l
 ```
 
 Show the last 10 commits (could be a greater number):
 ```
-netdump show commit[s] target | head [-n 10]
+netdump show commit target | head [-n 10]
 ```
 
 ### show diffs
@@ -81,7 +81,7 @@ netdump show commit[s] target | head [-n 10]
 List all changes for all commits made to git control
 version repository for 'target' (case sensitive):
 ```
-netdump show diff[s] target [commit1 commit2]
+netdump show diff target [commit1 commit2]
 ```
 
 The commit1 and commit2 allow to filter the changes
