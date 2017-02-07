@@ -109,4 +109,3 @@ sed -i 's/\/var\/lib\/git/\/var\/lib\/netdump\/git/g' /etc/gitweb.conf
 # Apply config in Apache Web Server
 service apache2 restart
 
-

@@ -169,6 +169,8 @@ if (($_RUN || $_DEBUG) && isset($argv[2]) && is_null(tabget($targets, 1, $argv[2
 	logError("Target '" . $argv[2] . "' does not exists"); 
 }
 
+$targets_count = count($targets);
+$targets_processed = 0;
 foreach($targets as $target)
 {
 
@@ -180,6 +182,7 @@ foreach($targets as $target)
 
 	$auth = tabget($auths, 0, $auth_tag); // Find the authentication credentials for the target
 
+	$targets_processed++; // Process the target!
 
 	logEcho("*** TARGET: $template, $target_tag, $address, $auth[1]", true);
 
@@ -305,30 +308,38 @@ foreach($targets as $target)
 }
 
 // Final message (report)
-
 if (!empty($_ERRORS))
 {
 	$errorList = tabulate($_ERRORS, array("Tag", "Addr", "Error", "Log"));
 	logEcho($errorList);
 	$_REPORT = array_merge(
 		array(
-			"There were ".count($_ERRORS)." errors:"
+			"Targets processed " . $targets_processed . "/" . $targets_count . "."
+			, "Sorry, there were ".count($_ERRORS)." errors:"
 			, $errorList
-			, "Execution output:")
+			, "Execution output:"
+		)
 		, $_REPORT
 	);
 	$_EXITCODE = -2;
 }else{
-	$_REPORT[] = "No errors where reported.";
+	$_REPORT = array_merge(
+		array(
+			"Targets processed " . $targets_processed . "/" . $targets_count . "."
+			, "No errors where reported, yeah!."
+			, "Execution output:"
+		)
+		, $_REPORT
+	);
 }
 
 $body = implode("\n", $_REPORT);
-$subject = "Netdump [OK]";
+$subject = "Netdump [OK:" . $targets_processed . "/" . $targets_count . "]";
 if ($_EXITCODE != 0) $subject = "Netdump [" . count($_ERRORS) . " errors]";
 $subject .= " - $outfile_datepfx";
 
 if ($_MAIL_ACTIVE){
-	logEcho("*** EMAIL", true);
+	if ($_DEBUG) logEcho("*** EMAIL", true);
 	$sent = sendmail(
 		$_MAIL["from"],
 		$_MAIL["to"],
