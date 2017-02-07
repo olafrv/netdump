@@ -33,14 +33,14 @@ Then you can issue the following commands:
 netdump [help]
 ```
 
-Shows this commands help
+Shows commands help
 
 ## show
 
 ### show targets
 
 ```
-netdump show target[s]
+netdump show target[s] [| more]
 ```
 
 List targets from file '/etc/netdump/targets.conf'
@@ -48,7 +48,7 @@ List targets from file '/etc/netdump/targets.conf'
 ### show auths
 
 ```
-netdump show auth[s]
+netdump show auth[s] [| more]
 ```
 
 List crendentials file '/etc/netdump/auths.conf'
@@ -56,7 +56,7 @@ List crendentials file '/etc/netdump/auths.conf'
 ### show dumps
 
 ```
-netdump show dump[s] target [+/-days]
+netdump show dump[s] target [+/-days] [| more]
 ```
 
 List dumps for 'target' (case sensitive) created 'days' 
@@ -65,13 +65,25 @@ before/after (+/-) somedays until today
 ### show commits
 
 ```
-netdump show commit[s] target
+netdump show commit[s] target [| more] 
 ```
 
 List commits made to git control version repository
 in '/var/lib/netdump/git' for 'target' (case sensitive)
 
 The output include: commit id, date, comment
+
+```
+netdump show commit[s] target | wc -l
+```
+
+Show the number of commits
+
+```
+netdump show commit[s] target | head [-n 10]
+```
+
+Show the last 10 commits (could be a greater number)
 
 ### show diffs
 
@@ -85,8 +97,9 @@ version repository for 'target' (case sensitive)
 The commit1 and commit2 allow to filter the changes
 to those made between commit1 and commit2
 
-**NOTE:** commit1 must be older than commit2 or the output
-will be empty.
+**The commit1 must be older than commit2 or the output will be empty**
+
+**Use SPACE to scroll output instead of ENTER**
 
 # run
 

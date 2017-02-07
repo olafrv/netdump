@@ -60,7 +60,7 @@ if (isset($argv[1]))
 					case "target":
 					case "targets":
 						// Show targets
-						echo tabulate($targets, array("Model", "Address", "Tag", "Auth"));
+						echo tabulate($targets, array("Template", "Address", "Tag", "Auth"));
 						exit(0);
 						break;
 					case "auth";
