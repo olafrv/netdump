@@ -11,7 +11,11 @@ curl https://raw.githubusercontent.com/olafrv/netdump/master/install.sh | bash -
 
 Default installation directory is */opt/netdump/netdump*.
 
-Configuration files stays in */etc/netdump*.
+Configuration files stays in:
+
+* */etc/netdump/target.conf* (Switches, Router, Firewall & Servers)
+* */etc/netdump/auth.conf* (Authentication credendials for Targets)
+* */etc/netdump/mail.php* (Mail reporting configuration)
 
 
 # Commands (CLI)
