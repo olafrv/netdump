@@ -260,9 +260,11 @@ foreach($targets as $target)
 	if (!empty($msg)) echo logError($msg, $target, $logfile);
 
 	// Dump was really saved?
-	if (is_file($outfile) && filesize($outfile)>0)
+	clearstatcache(); // clear stat cache! 
+	$outfile_size = filesize($outfile);
+	if (is_file($outfile) && $outfile_size>0)
 	{
-		echo colorDebug("dump [" . filesize($outfile)  . "] ->") . $outfile . "\n";
+		echo colorDebug("dump [" . $outfile_size  . "] ->") . $outfile . "\n";
 	}
 	else
 	{
@@ -278,7 +280,7 @@ foreach($targets as $target)
 			. " " . escapeshellarg($gitfile_dir)
 			. " " . escapeshellarg($outfile)
 			. " " . escapeshellarg($gitfile)
-			. " " . escapeshellarg($target_tag . " dumped at " . $outfile_datepfx)
+			. " " . escapeshellarg("$target_tag $outfile_size $outfile_datepfx")
 			. ($_DEBUG ? " 1" : "");
 			if ($_DEBUG) echo colorDebug("exec: ") . $cmd . "\n";
 			exec($cmd, $cmd_output, $cmd_status); // Git actions
