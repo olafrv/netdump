@@ -52,21 +52,21 @@ netdump [help]
 
 ## show
 
-### show targets
+### show target
 
 List targets from file '/etc/netdump/targets.conf':
 ```
 netdump show target [| more]
 ```
 
-### show auths
+### show auth
 
 List crendentials file '/etc/netdump/auths.conf':
 ```
 netdump show auth [| more]
 ```
 
-### show dumps
+### show dump
 
 List dumps for 'target' (case sensitive) created 'days' 
 before/after (+/-) until today:
@@ -74,7 +74,7 @@ before/after (+/-) until today:
 netdump show dump target [+/-days] [| more]
 ```
 
-### show commits
+### show commit
 
 List commits made to git control version repository
 in '/var/lib/netdump/git' for 'target' (case sensitive):
@@ -94,7 +94,7 @@ Show the last 10 commits (could be a greater number):
 netdump show commit target | head [-n 10]
 ```
 
-### show diffs
+### show diff
 
 List all changes for all commits made to git control
 version repository for 'target' (case sensitive):
