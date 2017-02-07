@@ -117,6 +117,10 @@ if (isset($argv[1]))
 							{
 								$gitfile_dir = $_GITFILE_ROOTDIR . "/" . $argv[3];
 								$cmd = "/bin/bash $_ROOTDIR/git/git-diff.sh" . " " . escapeshellarg($gitfile_dir);
+								if (isset($argv[4]) && isset($argv[5]))
+								{
+									$cmd .= " " . escapeshellarg($argv[4] . ".." . $argv[5]);
+								}
 								if ($_DEBUG) echo colorDebug("exec: ") . $cmd . "\n";
 								exec($cmd, $cmd_output, $cmd_status); // Git actions
 								echo implode("\n", $cmd_output) . "\n";

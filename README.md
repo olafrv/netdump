@@ -71,14 +71,22 @@ netdump show commit[s] target
 List commits made to git control version repository
 in '/var/lib/netdump/git' for 'target' (case sensitive)
 
+The output include: commit id, date, comment
+
 ### show diffs
 
 ```
-netdump show diff[s] target
+netdump show diff[s] target [commit1 commit2]
 ```
 
-List changed (lines) between commits made to git control
+List all changes for all commits made to git control
 version repository for 'target' (case sensitive)
+
+The commit1 and commit2 allow to filter the changes
+to those made between commit1 and commit2
+
+**NOTE:** commit1 must be older than commit2 or the output
+will be empty.
 
 # run
 
