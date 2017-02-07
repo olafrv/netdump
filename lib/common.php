@@ -107,7 +107,7 @@ function logToSyslog($message, $level = LOG_INFO){
 }
 
 function sendmail(
-	$from, $to, $subject, $body, $servers, 
+	$from, $tos, $subject, $body, $servers, 
 	$port = 25, $secure = NULL, $user = NULL, $password = NULL
 )
 {
@@ -131,7 +131,9 @@ function sendmail(
 	$mail->Port = $port; 
 
 	$mail->setFrom($from); // Array of email address and full name 
-	$mail->addAddress($to); // Array of email address and full name
+	foreach(explode(";",$tos) as $to){
+		$mail->addAddress($to); // Array of email address and full name
+	}
 
 	$mail->Subject = $subject;
 
