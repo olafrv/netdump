@@ -24,7 +24,6 @@ First, from **root** change to the user *netdump*:
 ```
 sudo su - netdump
 ```
-**WARNING: netdump command is an alias of php netdump.php**
 
 Then you can issue the following commands:
 
