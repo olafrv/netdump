@@ -108,8 +108,10 @@ chmod +x /opt/netdump/netdump/netdump.php
 a2enmod cgi
 
 # Apache modules for GitWeb (LDAP Auth
+a2enmod ssl
 a2enmod ldap
 a2enmod authnz_ldap 
+a2ensite default-ssl
 
 # GitWeb install (Browse dump versions)
 apt-get -y install git gitweb
