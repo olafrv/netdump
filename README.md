@@ -113,6 +113,17 @@ netdump [debug|debugmail] [tag]
 
 **runmail** is the same as **run** but send an email with a execution report
 
+# clone
+
+Make a copy of the last or a specific dump commited version of a target:
+```
+netdump clone target destination [commit]
+```
+
+**destination:** is directory (e.g. /tmp).
+**commit:** if specified should be taked from the output of the **commit command**.
+
+
 # Version Control (Git)
 
 * Dumps versions are saved in: */var/lib/netdump/git* an available via [GitWeb](https://git-scm.com/docs/gitweb) (/gitweb) in the same server.
