@@ -20,100 +20,91 @@ Configuration files stays in */etc/netdump*.
 **WARNING: Netdump PHP script can't be run as superuser (root)**.
 
 First, from **root** change to the user *netdump*:
-
 ```
 sudo su - netdump
 ```
 
-Then you can issue the following commands:
+Then you can issue the commads listed bellow.
 
 ## help
 
+Says where to look for help
 ```
 netdump [help]
 ```
-
-Shows commands help
 
 ## show
 
 ### show targets
 
+List targets from file '/etc/netdump/targets.conf'
 ```
 netdump show target[s] [| more]
 ```
 
-List targets from file '/etc/netdump/targets.conf'
-
 ### show auths
 
+List crendentials file '/etc/netdump/auths.conf'
 ```
 netdump show auth[s] [| more]
 ```
 
-List crendentials file '/etc/netdump/auths.conf'
-
 ### show dumps
 
+List dumps for 'target' (case sensitive) created 'days' 
+before/after (+/-) until today
 ```
 netdump show dump[s] target [+/-days] [| more]
 ```
 
-List dumps for 'target' (case sensitive) created 'days' 
-before/after (+/-) somedays until today
-
 ### show commits
 
+List commits made to git control version repository
+in '/var/lib/netdump/git' for 'target' (case sensitive)
 ```
 netdump show commit[s] target [| more] 
 ```
 
-List commits made to git control version repository
-in '/var/lib/netdump/git' for 'target' (case sensitive)
-
 The output include: commit id, date, comment
 
+Show the number of commits
 ```
 netdump show commit[s] target | wc -l
 ```
 
-Show the number of commits
-
+Show the last 10 commits (could be a greater number)
 ```
 netdump show commit[s] target | head [-n 10]
 ```
 
-Show the last 10 commits (could be a greater number)
-
 ### show diffs
 
+List all changes for all commits made to git control
+version repository for 'target' (case sensitive).
 ```
 netdump show diff[s] target [commit1 commit2]
 ```
 
-List all changes for all commits made to git control
-version repository for 'target' (case sensitive)
-
 The commit1 and commit2 allow to filter the changes
-to those made between commit1 and commit2
+to those made between commit1 and commit2.
 
-**The commit1 must be older than commit2 or the output will be empty**
+**NOTE**: The commit1 must be older than commit2 or the output will be empty.
 
-**Use SPACE to scroll output instead of ENTER**
+**NOTE**: Use SPACE to scroll output instead of ENTER.
 
 # run
 
-netdump run [tag]
-
 Remotly dump configuration for target with 'tag'
+```
+netdump run [tag]
+```
 
 # debug
 
+Same as run with debugging
 ```
 netdump debug [tag]
 ```
-
-Same as run with debugging
 
 # Version Control (Git)
 
