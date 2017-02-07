@@ -12,6 +12,7 @@ fi
 addgroup --system netdump
 adduser --system --disabled-password --home /opt/netdump netdump --ingroup netdump --shell /bin/bash
 
+# Without this netdump does not run!
 cat - > /opt/netdump/.bash_profile <<END
 #!/bin/bash
 cd
@@ -20,6 +21,7 @@ date
 export PATH=$PATH:/opt/netdump/netdump
 END
 
+# Support for weak and legacy SSH versions!
 [ -d /opt/netdump/.ssh ] || mkdir /opt/netdump/.ssh
 cat - > /opt/netdump/.ssh/config <<END
 # https://www.openssh.com/legacy.html
@@ -52,7 +54,14 @@ apt-get -y install php5.6 php5.6-dev php5.6-mysql php5.6-mbstring libapache2-mod
 apt-get -y install apache2
 apt-get -y install php-pear
 
-rm -f /var/www/html/index.html
+# A friendly redirect to GitWeb
+cat - > /var/www/html/index.html <<END
+<html>
+	<script language="Javascript">
+		document.location="/gitweb";
+	</script>
+</html>
+END
 
 # Switch from php5.6 to php7.0 :
 #  Apache:
