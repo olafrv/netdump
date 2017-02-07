@@ -5,7 +5,6 @@ Remote collect configuration (dumps) from networked switches, routers, firewalls
 # Installation
 
 Installation script is tested in Ubuntu 16.04 LTS, run installer with:
-
 ```bash
 curl https://raw.githubusercontent.com/olafrv/netdump/master/install.sh | bash -
 ```
@@ -28,7 +27,7 @@ Then you can issue the commads listed bellow.
 
 ## help
 
-Says where to look for help
+Says where to look for help:
 ```
 netdump [help]
 ```
@@ -37,14 +36,14 @@ netdump [help]
 
 ### show targets
 
-List targets from file '/etc/netdump/targets.conf'
+List targets from file '/etc/netdump/targets.conf':
 ```
 netdump show target[s] [| more]
 ```
 
 ### show auths
 
-List crendentials file '/etc/netdump/auths.conf'
+List crendentials file '/etc/netdump/auths.conf':
 ```
 netdump show auth[s] [| more]
 ```
@@ -52,7 +51,7 @@ netdump show auth[s] [| more]
 ### show dumps
 
 List dumps for 'target' (case sensitive) created 'days' 
-before/after (+/-) until today
+before/after (+/-) until today:
 ```
 netdump show dump[s] target [+/-days] [| more]
 ```
@@ -60,19 +59,19 @@ netdump show dump[s] target [+/-days] [| more]
 ### show commits
 
 List commits made to git control version repository
-in '/var/lib/netdump/git' for 'target' (case sensitive)
+in '/var/lib/netdump/git' for 'target' (case sensitive):
 ```
 netdump show commit[s] target [| more] 
 ```
 
-The output include: commit id, date, comment
+The output include: commit id, date and comment.
 
-Show the number of commits
+Show the number of commits:
 ```
 netdump show commit[s] target | wc -l
 ```
 
-Show the last 10 commits (could be a greater number)
+Show the last 10 commits (could be a greater number):
 ```
 netdump show commit[s] target | head [-n 10]
 ```
@@ -80,7 +79,7 @@ netdump show commit[s] target | head [-n 10]
 ### show diffs
 
 List all changes for all commits made to git control
-version repository for 'target' (case sensitive).
+version repository for 'target' (case sensitive):
 ```
 netdump show diff[s] target [commit1 commit2]
 ```
@@ -94,14 +93,14 @@ to those made between commit1 and commit2.
 
 # run
 
-Remotly dump configuration for target with 'tag'
+Remotly dump configuration for target with 'tag':
 ```
 netdump run [tag]
 ```
 
 # debug
 
-Same as run with debugging
+Same as run with debugging:
 ```
 netdump debug [tag]
 ```
@@ -109,9 +108,7 @@ netdump debug [tag]
 # Version Control (Git)
 
 * Dumps versions are saved in: */var/lib/netdump/git* an available via [GitWeb](https://git-scm.com/docs/gitweb) (/gitweb) in the same server.
-
-* Protect access to GitWeb using [Apache Auth](http://httpd.apache.org/docs/2.0/mod/mod_auth.html)
-
+* Protect unauthorized access to GitWeb using [Apache Auth Module](http://httpd.apache.org/docs/2.0/mod/mod_auth.html)
 * Apache LDAP / Active Directory authentication [git/gitweb.example.conf](https://github.com/olafrv/netdump/tree/master/git)
 
 # Backup (Global)
