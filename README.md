@@ -119,6 +119,15 @@ netdump [debug|debugmail] [tag]
 * Protect unauthorized access to GitWeb using [Apache Auth Module](http://httpd.apache.org/docs/2.0/mod/mod_auth.html)
 * Apache LDAP / Active Directory authentication [git/gitweb.example.conf](https://github.com/olafrv/netdump/tree/master/git)
 
+# Cron Jobs
+
+* An example of crontab is here [conf/crontab.example](https://github.com/olafrv/netdump/tree/master/conf)
+* Cron jobs should run with **netdump** user and edited as follows:
+```
+sudo su - netdump
+crontab -e
+```
+
 # Backup (Global)
 
 This are the most important directories to backup outside from netdump server:

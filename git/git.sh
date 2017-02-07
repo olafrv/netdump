@@ -22,7 +22,6 @@ ERROR=$?
 if [ $ERROR -eq 0 ] && [ -d "$GREPO" ]
 then
 	cd "$GREPO" 
-	if [ ! -z "$DEBUG" ]; then echo "Initial commit: $GCOMM"; fi
 	[ -d "$GREPO/.git" ] || git init
 	ERROR=$?
 fi

@@ -61,76 +61,8 @@ function tabget($array, $index, $value){
 }
 				
 function help(){
-	global $_TARGETS_FILE;
-	global $_AUTHS_FILE;
-	global $_OUTFILE_ROOTDIR;
-	global $_GITFILE_ROOTDIR;
-	global $_LOGFILE_ROOTDIR;
-
-			echo 
-"
-COMMANDS
-
-php netdump.php [help]
-  Shows this commands help
-
-php netdump.php show target[s]
-  List targets from file '$_TARGETS_FILE'
-
-php netdump.php show auth[s]
-  List crendentials file '$_AUTHS_FILE'
-
-php netdump.php show dump[s] target [+/-days]
-  List dumps for 'target' (case sensitive) created 'days' 
-  before/after (+/-) somedays until today
-
-php netdump.php show commit[s] target
-  List commits made to git control version repository
-  in '$_GITFILE_ROOTDIR' for 'target' (case sensitive)
-
-php netdump.php show diff[s] target
-  List changed (lines) between commits made to git control
-  version repository for 'target' (case sensitive)
-
-php netdump.php run [tag]
-	Remotly dump configuration for target with 'tag	
-
-php netdump.php debug [tag]
-	Same as run with debugging
-
-LOGGING
-
-- Dumps are saved in: '$_OUTFILE_ROOTDIR'
-- Logs are saved in: '$_LOGFILE_ROOTDIR'
-
-\n";
-	
-}
-
-function colorDebug($msg, $newline = "\n"){
-	global $_COLORS;
-	global $_DEBUG;
-	return !$_DEBUG ? "" : $_COLORS->getColoredString($msg, "white", "magenta") . $newline;
-}
-
-function colorInfo($msg, $newline = "\n"){
-	global $_COLORS;
-	return $_COLORS->getColoredString($msg, "white", "blue") . $newline;
-}
-
-function colorOk($msg, $newline = "\n"){
-	global $_COLORS;
-	return $_COLORS->getColoredString($msg, "white", "green"). $newline;
-}
-
-function colorWarn($msg, $newline = "\n"){
-	global $_COLORS;
-	return $_COLORS->getColoredString($msg, "black", "yellow") . $newline;
-}
-
-function colorError($msg, $newline = "\n"){
-	global $_COLORS;
-	return $_COLORS->getColoredString($msg, "white", "red") . $newline;
+	global $_ROOTDIR;
+	echo "Please read $_ROOTDIR/README.md\n";
 }
 
 function strvarsub($str, $vars){
@@ -144,18 +76,32 @@ function strclean($str){
 	return trim(preg_replace('/[[:^print:]]/', '', $str)); 
 }
 
-function logError($msg, $target, $logfile){
-	global $_ERRORS;	
-	list($template, $target_tag, $address, $auth_tag) = $target;
-	$_ERRORS[] = array($target_tag, $address, substr($msg,0,20), basename($logfile));
-	logToSyslog($msg); 	
-	return colorError($msg);
+function logEcho($msg, $syslog = false)
+{
+	global $_REPORT;
+	$_REPORT[] = $msg;
+	echo $msg . "\n";
+	if ($syslog) logToSyslog(str_replace("\n", " ", $msg));
 }
+
+function logError($msg, $target = NULL, $logfile = NULL){
+	global $_ERRORS;
+	$msg = "*** ERROR: *** " . $msg;
+	if (!is_null($target)){
+		list($template, $target_tag, $address, $auth_tag) = $target;
+		$_ERRORS[] = array($target_tag, $address, substr($msg,0,20), basename($logfile));
+	}else{
+		$_ERRORS[] = array("*netdump*", "localhost", $msg, "syslog");
+	}
+	echo $msg . "\n";
+	logToSyslog(str_replace("\n", " ", $msg));
+}
+
 
 function logToSyslog($message, $level = LOG_INFO){
 	$now = DateTime::createFromFormat('U.u', microtime(true));
 	$nowf = $now->format("Y-m-d H:i:s.u");
-	openlog("netdump", LOG_PID | LOG_PERROR | LOG_CONS, LOG_SYSLOG);
+	openlog("netdump", LOG_PID | LOG_CONS, LOG_SYSLOG);
 	syslog($level, "$nowf $message");
 	closelog();
 }
@@ -188,8 +134,11 @@ function sendmail(
 	$mail->addAddress($to); // Array of email address and full name
 
 	$mail->Subject = $subject;
+
+	$mail->IsHTML(false);
+
 	$mail->Body    = $body;
-	$mail->AltBody = $body;
+	// $mail->AltBody = $body;
 
 	return array(
 		"status" => $mail->send(), 

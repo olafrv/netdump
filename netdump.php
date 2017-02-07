@@ -20,13 +20,12 @@
  */
 
 require 'Console/Table.php';
-require 'lib/Colors.php';
 require 'PHPMailer/PHPMailerAutoload.php';
 require 'lib/common.php';
 require 'lib/Automata.php';
 require '/etc/netdump/mail.php';
 
-$_COLORS = new Colors();
+$_RUN = false;
 $_DEBUG = false;
 $_MAIL_ACTIVE = false;
 $_ROOTDIR = "/opt/netdump/netdump";
@@ -47,7 +46,12 @@ $outfile_datepfx = date("Ymd_his");
 
 if (posix_geteuid()==0)
 {
-	echo "Must not be run as root\n";
+	logError("Must not be run as root");
+	exit(2);
+}
+
+if (!is_file("/bin/bash")){
+	logError("Bash shell is unavailable (/bin/bash)");
 	exit(2);
 }
 
@@ -66,11 +70,13 @@ if (isset($argv[1]))
 						echo tabulate($targets, array("Template", "Address", "Tag", "Auth"));
 						exit(0);
 						break;
+
 					case "auth";
 						// Show authentication credential list
 						echo tabulate($auths, array("Auth", "Param1", "Param2", "Parm3"));
 						exit(0);
 						break;
+
 					case "dump":
 						if (isset($argv[3]))
 						{
@@ -80,7 +86,6 @@ if (isset($argv[1]))
 								"find '$_OUTFILE_ROOTDIR' -type f -name " 
 								. escapeshellarg('*' . $argv[3]. '*.conf') . " -mtime $backtime" 
 								. " -printf \"%TY-%Tm-%Td %TH:%TM \t%k KB\t%p\n\" | sort -r\n";
-							// echo $system_cmd;
 							system($system_cmd);
 						}
 						else
@@ -88,52 +93,41 @@ if (isset($argv[1]))
 							help(); exit(-1);	
 						}
 						break;
+
 					case "commit":
 						if (isset($argv[3]))
 						{
-							if (is_file("/bin/bash"))
-							{
 								$gitfile_dir = $_GITFILE_ROOTDIR . "/" . $argv[3];
 								$cmd = "/bin/bash $_ROOTDIR/git/git-log.sh" . " " . escapeshellarg($gitfile_dir);
-								if ($_DEBUG) echo colorDebug("exec: ") . $cmd . "\n";
+								if ($_DEBUG) logEcho("*** EXEC: " . $cmd, true);
 								exec($cmd, $cmd_output, $cmd_status); // Git actions
-								echo implode("\n", $cmd_output) . "\n";
-							}
-							else
-							{
-								echo logError("Bash unavailable '/bin/bash'", $target, $logfile);
-							}
+								logEcho(implode("\n", $cmd_output));
 						}
 						else
 						{	
 							help(); exit(-1);	
 						}
 						break;
+
 					case "diff":
 						if (isset($argv[3]))
 						{
-							if (is_file("/bin/bash"))
+							$gitfile_dir = $_GITFILE_ROOTDIR . "/" . $argv[3];
+							$cmd = "/bin/bash $_ROOTDIR/git/git-diff.sh" . " " . escapeshellarg($gitfile_dir);
+							if (isset($argv[4]) && isset($argv[5]))
 							{
-								$gitfile_dir = $_GITFILE_ROOTDIR . "/" . $argv[3];
-								$cmd = "/bin/bash $_ROOTDIR/git/git-diff.sh" . " " . escapeshellarg($gitfile_dir);
-								if (isset($argv[4]) && isset($argv[5]))
-								{
-									$cmd .= " " . escapeshellarg($argv[4] . ".." . $argv[5]);
-								}
-								if ($_DEBUG) echo colorDebug("exec: ") . $cmd . "\n";
-								exec($cmd, $cmd_output, $cmd_status); // Git actions
-								echo implode("\n", $cmd_output) . "\n";
+								$cmd .= " " . escapeshellarg($argv[4] . ".." . $argv[5]);
 							}
-							else
-							{
-								echo logError("Bash unavailable '/bin/bash'", $target, $logfile);
-							}
+							if ($_DEBUG) logEcho("EXEC: " . $cmd, true);
+							exec($cmd, $cmd_output, $cmd_status); // Git actions
+							logEcho(implode("\n", $cmd_output));
 						}
 						else
 						{	
 							help(); exit(-1);	
 						}
 						break;
+
 					default:
 						// Show help (bad argument)
 						help(); exit(-1);	
@@ -144,15 +138,20 @@ if (isset($argv[1]))
 			{
 				help(); exit(-1);	
 			}
-		case "run":
-		case "runmail":
-			// Just run netdump
 			break;
-		case "debug":
+
+		case "runmail":
+			$_MAIL_ACTIVE = true;
+		case "run":
+			$_RUN = true;
+			break;
+
 		case "debugmail":
-			// Run and show debug messages
+			$_MAIL_ACTIVE = true;
+		case "debug":
 			$_DEBUG = true;
 			break;
+
 		default:
 			// Show help (bad argument)
 			help(); exit(-1);	
@@ -165,20 +164,24 @@ else
 	help(); exit(-1);	
 }
 
-if (isset($argv[1]) && ($argv[1]=="runmail" || $argv[1] = "debugmail")) $_MAIL_ACTIVE = true;
-	
+// From here is only for run or debug
+if (($_RUN || $_DEBUG) && isset($argv[2]) && is_null(tabget($targets, 1, $argv[2]))){
+	logError("Target '" . $argv[2] . "' does not exists"); 
+}
+
 foreach($targets as $target)
 {
 
 	if (count($target)<4) continue; // Skip empty lines from targets.conf
 	$target = array_map("strclean", $target); // Trim spaces and non printable from targets.conf
-	list($template, $target_tag, $address, $auth_tag) = $target;
 
+	list($template, $target_tag, $address, $auth_tag) = $target; // Tokenize target array
 	if (isset($argv[2]) and $target_tag != $argv[2]) continue; // Filter for specific target (tag)
 
 	$auth = tabget($auths, 0, $auth_tag); // Find the authentication credentials for the target
 
-	echo colorInfo("TARGET: Template: $template, Tag: $target_tag, Address: $address, User: $auth[1]");
+
+	logEcho("*** TARGET: $template, $target_tag, $address, $auth[1]", true);
 
 	// Define and create directory and file path
 	$outfile_dir = $_OUTFILE_ROOTDIR . "/" . $target_tag . "/" . $outfile_datedir;
@@ -208,31 +211,31 @@ foreach($targets as $target)
 		$depends[] = $dependency;
 		$template_file = $_TEMPLATE_ROOTDIR . "/" . implode(".", $depends) . ".php";
 		if (is_file($template_file)){
-			echo colorDebug("template: $template_file");
+			if ($_DEBUG) logEcho("*** TEMPLATE: $template_file");
 			require_once $template_file;
 		}
 		else
 		{
-			echo logError("Template file not found ($template_file)!", $target, $logfile);
+			logError("Template file not found ($template_file)", $target, $logfile);
 			continue;
 		}
 	}
 
 	if (isset($_TEMPLATE[$template]))
 	{
-			if ($_DEBUG) echo print_r($_TEMPLATE[$template], true);
+			if ($_DEBUG) logEcho(print_r($_TEMPLATE[$template], true));
 			$cmd = $_TEMPLATE[$template]["cmd"]; 
 			$cases_groups = $_TEMPLATE[$template]["cases"]; 
 			$answers_groups = $_TEMPLATE[$template]["answers"]; 
-			echo colorDebug($cmd) . "\n";
+			if ($_DEBUG) logEcho("*** CMD: " . $cmd, true);
 			$automata = new \Netdump\Automata();
 			$debug = array();
 			$result = $automata->expect($cmd, $cases_groups, $answers_groups, $outfile, $debug);
-			if ($_DEBUG) foreach($debug as $msg) echo colorDebug($msg[0]) . (isset($msg[1]) ? $msg[1] : "");
+			if ($_DEBUG) foreach($debug as $msg) logEcho($msg[0] . (isset($msg[1]) ? $msg[1] : ""));
 	}
 	else
 	{
-		echo logError("Undefined template '$template' in file '$template_file'!", $target, $logfile);
+		logError("Undefined template '$template' in file '$template_file'", $target, $logfile);
 		continue;
 	}
 
@@ -242,7 +245,7 @@ foreach($targets as $target)
 	{
 		case AUTOMATA_EOF:
 			// End of file (stream)
-			echo colorDebug("EOF");
+			if ($_DEBUG) logEcho("*** EOF");
 			break;
 		case AUTOMATA_TIMEOUT:
 			$msg = "Error timeout!"; // Connection or expect timeout
@@ -252,7 +255,7 @@ foreach($targets as $target)
 			break;
 		case AUTOMATA_FINISHED:
 			// Finished (OK)
-			echo colorDebug("finished");
+			if ($_DEBUG) logEcho("*** FINISHED");
 			break;
 		default:
 			$msg = "Unknown case error result. Please debug!"; // Unknown error!
@@ -260,74 +263,72 @@ foreach($targets as $target)
 	}
 	
 	// Check for other common errors?
-	if (!empty($msg)) echo logError($msg, $target, $logfile);
+	if (!empty($msg)) logError($msg, $target, $logfile);
 
 	// Dump was really saved?
 	clearstatcache(); // clear stat cache! 
 	$outfile_size = filesize($outfile);
 	if (is_file($outfile) && $outfile_size>0)
 	{
-		echo colorDebug("dump [" . $outfile_size  . "] ->") . $outfile . "\n";
+		if ($_DEBUG) logEcho("*** DUMP [" . $outfile_size  . "]: " . $outfile, true);
 	}
 	else
 	{
-		echo logError("Error empty file '$outfile'!", $target, $logfile);
+		logError("Empty file '$outfile'!", $target, $logfile);
 	}
 
 	// Git repo create, backup configuration add and commit actions
 	if (empty($_ERRORS))
 	{
-		if (is_file("/bin/bash"))
+		$cmd = "/bin/bash $_ROOTDIR/git/git.sh" 
+		. " " . escapeshellarg($gitfile_dir)
+		. " " . escapeshellarg($outfile)
+		. " " . escapeshellarg($gitfile)
+		. " " . escapeshellarg("$target_tag $outfile_size $outfile_datepfx")
+		. ($_DEBUG ? " 1" : "");
+		if ($_DEBUG) logEcho("*** EXEC: " . $cmd);
+		exec($cmd, $cmd_output, $cmd_status); // Git actions
+		if ($cmd_status == 0)
 		{
-			$cmd = "/bin/bash $_ROOTDIR/git/git.sh" 
-			. " " . escapeshellarg($gitfile_dir)
-			. " " . escapeshellarg($outfile)
-			. " " . escapeshellarg($gitfile)
-			. " " . escapeshellarg("$target_tag $outfile_size $outfile_datepfx")
-			. ($_DEBUG ? " 1" : "");
-			if ($_DEBUG) echo colorDebug("exec: ") . $cmd . "\n";
-			exec($cmd, $cmd_output, $cmd_status); // Git actions
-			if ($cmd_status == 0)
-			{
-				file_put_contents($gitfile_dir . "/.git/description", "$target_tag"); // Update git repo name
-				if ($_DEBUG) echo implode("\n", $cmd_output) . "\n";
-			}
-			else
-			{
-				echo logError("Error ($cmd_status) exec '$cmd' trace: " . implode("\n", $cmd_output), $target, $logfile);
-			}
+			file_put_contents($gitfile_dir . "/.git/description", "$target_tag"); // Update git repo name
+			if ($_DEBUG) logEcho(implode("\n", $cmd_output));
 		}
 		else
 		{
-			echo logError("Bash unavailable '/bin/bash'", $target, $logfile);
+			logError("Error ($cmd_status) exec '$cmd' trace: " . implode("\n", $cmd_output), $target, $logfile);
 		}
 	}
 
 	// Show log file path if there were target errors
-	if ($_DEBUG && !is_null(tabget($_ERRORS, 1, $target_tag))) echo colorWarn("LOG: $logfile");
+	if ($_DEBUG && !is_null(tabget($_ERRORS, 1, $target_tag))) logEcho("LOG: $logfile");
 
-	// Separator (Output)
-	echo "\n";
 }
 
 // Final message (report)
 
 if (!empty($_ERRORS))
 {
-	$report .= colorError("Final report of errors:");
-	$report .= tabulate($_ERRORS, array("Tag", "Addr", "Error", "Log"));
-	$rerpot .= colorWarn("Log files saved in: $_LOGFILE_ROOTDIR");
+	$errorList = tabulate($_ERRORS, array("Tag", "Addr", "Error", "Log"));
+	logEcho($errorList);
+	$_REPORT = array_merge(
+		array(
+			"There were ".count($_ERRORS)." errors:"
+			, $errorList
+			, "Execution output:")
+		, $_REPORT
+	);
 	$_EXITCODE = -2;
 }else{
-	$report = "No errors where reported.";
+	$_REPORT[] = "No errors where reported.";
 }
 
-$body = $report;
-$subject = "netdump [OK]";
-if ($_EXITCODE != 0) $subject = "netdump [ERROR " . count($_ERRORS) . "]";
+$body = implode("\n", $_REPORT);
+$subject = "Netdump [OK]";
+if ($_EXITCODE != 0) $subject = "Netdump [" . count($_ERRORS) . " errors]";
 $subject .= " - $outfile_datepfx";
 
 if ($_MAIL_ACTIVE){
+	logEcho("*** EMAIL", true);
 	$sent = sendmail(
 		$_MAIL["from"],
 		$_MAIL["to"],
@@ -340,8 +341,7 @@ if ($_MAIL_ACTIVE){
 		$_MAIL["password"]
 	);
 	if (!$sent["status"]){
-		echo colorError($sent["error"]) . "\n";
-		logToSyslog($sent["error"], LOG_ERR);
+		logError($sent["error"]);
 	}
 }
 
