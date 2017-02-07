@@ -17,7 +17,7 @@ cat - > /opt/netdump/.bash_profile <<END
 cd
 pwd
 date
-alias netdump='php /opt/netdump/netdump/netdump.php'
+export PATH=$PATH:/opt/netdump/netdump
 END
 
 [ -d /opt/netdump/.ssh ] || mkdir /opt/netdump/.ssh
@@ -34,6 +34,9 @@ apt-get -y install git
 # Download netdump
 [ -d /opt/netdump ] || mkdir /opt/netdump
 [ -d /opt/netdump/netdump ] || git clone https://github.com/olafrv/netdump.git /opt/netdump/netdump
+
+# netdump as path command
+ln -s /opt/netdump/netdump/netdump.php /opt/netdump/netdump/netdump 
 
 # We need find, sort, colordiff, more
 apt-get -y install coreutils findutils colordiff util-linux
@@ -87,11 +90,12 @@ chmod 600 /etc/netdump/*
 chown -R netdump:netdump /etc/netdump
 chown -R netdump:netdump /var/lib/netdump
 chown -R netdump:netdump /opt/netdump
+chmod +x /opt/netdump/netdump/netdump.php
 
 # Apache modules for GitWeb
 a2enmod cgi
 
-# Apache modules for GitWeb (LDAP Auth)
+# Apache modules for GitWeb (LDAP Auth
 a2enmod ldap
 a2enmod authnz_ldap 
 
