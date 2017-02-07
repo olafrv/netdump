@@ -2,7 +2,7 @@
 
 ## What it is?
 
-A utility to remotly backup the configuration of networked switches, routers, firewalls and servers using expect php library and git version control.
+A tool to remotly backup the configuration of networked switches, routers, firewalls and servers using expect php library, git version control and many other Linux utilities.
 
 ## Features
 
