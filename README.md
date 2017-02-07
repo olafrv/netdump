@@ -95,15 +95,19 @@ to those made between commit1 and commit2.
 
 Remotly dump configuration for target with 'tag':
 ```
-netdump run [tag]
+netdump [run|runmail] [tag]
 ```
+
+**runmail** is the same as **run** but send an email with a execution report
 
 # debug
 
 Same as run with debugging:
 ```
-netdump debug [tag]
+netdump [debug|debugmail] [tag]
 ```
+
+**runmail** is the same as **run** but send an email with a execution report
 
 # Version Control (Git)
 
