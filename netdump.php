@@ -82,11 +82,13 @@ if (isset($argv[1]))
 						{
 							$backtime = -7;
 							if (isset($argv[4])) $backtime = escapeshellarg($argv[4]);
-							$system_cmd = 
+							$cmd = 
 								"find '$_OUTFILE_ROOTDIR' -type f -name " 
 								. escapeshellarg('*' . $argv[3]. '*.conf') . " -mtime $backtime" 
 								. " -printf \"%TY-%Tm-%Td %TH:%TM \t%k KB\t%p\n\" | sort -r\n";
-							system($system_cmd);
+							exec($cmd, $cmd_output, $cmd_status); // Git actions
+							logEcho(implode("\n", $cmd_output));
+							exit($cmd_status);
 						}
 						else
 						{	
@@ -97,11 +99,12 @@ if (isset($argv[1]))
 					case "commit":
 						if (isset($argv[3]))
 						{
-								$gitfile_dir = $_GITFILE_ROOTDIR . "/" . $argv[3];
-								$cmd = "/bin/bash $_ROOTDIR/git/git-log.sh" . " " . escapeshellarg($gitfile_dir);
-								if ($_DEBUG) logEcho("*** EXEC: " . $cmd, true);
-								exec($cmd, $cmd_output, $cmd_status); // Git actions
-								logEcho(implode("\n", $cmd_output));
+							$gitfile_dir = $_GITFILE_ROOTDIR . "/" . $argv[3];
+							$cmd = "/bin/bash $_ROOTDIR/git/git-log.sh" . " " . escapeshellarg($gitfile_dir);
+							if ($_DEBUG) logEcho("*** EXEC: " . $cmd, true);
+							exec($cmd, $cmd_output, $cmd_status); // Git actions
+							logEcho(implode("\n", $cmd_output));
+							exit($cmd_status);
 						}
 						else
 						{	
@@ -113,7 +116,7 @@ if (isset($argv[1]))
 						if (isset($argv[3]))
 						{
 							$gitfile_dir = $_GITFILE_ROOTDIR . "/" . $argv[3];
-							$cmd = "/bin/bash $_ROOTDIR/git/git-diff.sh" . " " . escapeshellarg($gitfile_dir);
+							$cmd = "/bin/bash $_ROOTDIR/git/git-diff.sh " . escapeshellarg($gitfile_dir);
 							if (isset($argv[4]) && isset($argv[5]))
 							{
 								$cmd .= " " . escapeshellarg($argv[4] . ".." . $argv[5]);
@@ -121,6 +124,7 @@ if (isset($argv[1]))
 							if ($_DEBUG) logEcho("EXEC: " . $cmd, true);
 							exec($cmd, $cmd_output, $cmd_status); // Git actions
 							logEcho(implode("\n", $cmd_output));
+							exit($cmd_status);
 						}
 						else
 						{	
@@ -139,6 +143,25 @@ if (isset($argv[1]))
 				help(); exit(-1);	
 			}
 			break;
+
+		case "clone":
+			if (isset($argv[2]) && isset($argv[3]))
+			{
+				$gitfile_dir = $_GITFILE_ROOTDIR . "/" . $argv[2];
+				$cmd = "/bin/bash $_ROOTDIR/git/git-clone.sh " . escapeshellarg($gitfile_dir);
+				$cmd .= " " . escapeshellarg($argv[3] . "/" . $argv[2]);
+				$cmd .= " " . (isset($argv[4]) ? escapeshellarg($argv[4]) : "HEAD");
+				if ($_DEBUG) logEcho("EXEC: " . $cmd, true);
+				exec($cmd, $cmd_output, $cmd_status); // Git actions
+				if ($_DEBUG) logEcho(implode("\n", $cmd_output));
+				exit($cmd_status);
+			}
+			else
+			{	
+				help(); exit(-1);	
+			}
+			break;
+
 
 		case "runmail":
 			$_MAIL_ACTIVE = true;
