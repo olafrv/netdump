@@ -1,6 +1,20 @@
 # Netdump
 
-Remote collect configuration (dumps) from networked switches, routers, firewalls and servers using expect php library
+# What it is?
+
+A utility to remotly backup the configuration of networked switches, routers, firewalls and servers using expect php library and git version control.
+
+# Features
+
+* Tested on Ubuntu Linux Server Edition 16.04 LTS (64 bits).
+* Editable templates to backup the following devices:
+  * Cisco IOS (SSH/Telnet).
+  * Cisco Nexus OS (SSH/Telnet).
+  * Fortigate FortiOS (SSH).
+* Asisted version control with Git repositories per device.
+* Friendly Web browsing of backups via secured GitWeb interface.
+* SSH client param included to support old devices (Weak protocols).
+* Notification support via PHPMailer (Installed in /usr/share/php).
 
 # Installation
 
