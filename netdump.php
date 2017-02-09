@@ -362,7 +362,7 @@ if ($_EXITCODE != 0) $subject = "Netdump [" . count($_ERRORS) . " errors]";
 $subject .= " - $outfile_datepfx";
 
 if ($_MAIL_ACTIVE){
-	if ($_DEBUG) logEcho("*** EMAIL", true);
+	logEcho("*** EMAIL", true);
 	$sent = sendmail(
 		$_MAIL["from"],
 		$_MAIL["to"],

@@ -120,3 +120,6 @@ sed -i 's/\/var\/lib\/git/\/var\/lib\/netdump\/git/g' /etc/gitweb.conf
 # Apply config in Apache Web Server
 service apache2 restart
 
+# MTA for easy cronjob debugging
+apt-get install -y exim4
+

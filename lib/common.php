@@ -142,8 +142,9 @@ function sendmail(
 	$mail->Body    = $body;
 	// $mail->AltBody = $body;
 
+	$status = $mail->send();
 	return array(
-		"status" => $mail->send(), 
+		"status" => $status, 
 		"error" => $mail->ErrorInfo
 	);
 }
