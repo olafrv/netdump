@@ -163,7 +163,8 @@ This are the most important directories to backup outside from netdump server:
 
 # Logging
 
-* Dumps are saved in: */var/lib/netdump/dumps*
-* Logs are saved in: */var/lib/netdump/logs*
-
+* Output (Dump) from devices are saved in: */var/lib/netdump/dumps*
+* Unfiltered expect output are saved in: */var/lib/netdump/logs*
+* Netdump command output are saved in: */var/log/syslog*
+* Cronjobs output are delivered locally by *exim4* MTA and are available via *mail* command.
 
