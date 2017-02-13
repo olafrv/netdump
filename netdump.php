@@ -255,7 +255,19 @@ foreach($targets as $target)
 			if ($_DEBUG) logEcho("*** CMD: " . $cmd, true);
 			$automata = new \Netdump\Automata();
 			$debug = array();
-			$result = $automata->expect($cmd, $cases_groups, $answers_groups, $outfile, $debug);
+			$retries = 1;
+			while($retries++ <= 3)
+			{
+				$result = $automata->expect($cmd, $cases_groups, $answers_groups, $outfile, $debug);
+				if ($result == AUTOMATA_TIMEOUT)
+				{
+					continue; // Retry when timeout (connection or response)
+				}
+				else
+				{
+					break; // Stop retrying
+				}	
+			}
 			if ($_DEBUG) foreach($debug as $msg) logEcho($msg[0] . (isset($msg[1]) ? $msg[1] : ""));
 	}
 	else
