@@ -18,7 +18,7 @@ A tool to remotly backup the configuration of networked switches, routers, firew
 
 # Installation
 
-*Requires PHP 5.3 because PHP Expect library is not yet compatible with PHP 7.0*
+**WARNING: Requires PHP 5.3 because PHP Expect library is not yet compatible with PHP 7.0**
 
 Installation script is tested in Ubuntu 16.04 LTS, run installer with:
 ```bash
