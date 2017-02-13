@@ -98,7 +98,8 @@ function logError($msg, $target = NULL, $logfile = NULL){
 
 
 function logToSyslog($message, $level = LOG_INFO){
-	$now = DateTime::createFromFormat('U.u', microtime(false));
+	$mt = microtime(true);
+	$now = DateTime::createFromFormat("U.u", number_format($mt, 6, '.', ''));
 	$nowf = $now->format("Y-m-d H:i:s.u");
 	openlog("netdump", LOG_PID | LOG_CONS, LOG_SYSLOG);
 	syslog($level, "$nowf $message");
