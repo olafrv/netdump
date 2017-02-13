@@ -2,7 +2,6 @@
 <?php
 
 /*
- *    netdump.php 
  *    Copyright (C) 2017  Olaf Reitmaier Veracierta
  *
  *    This program is free software: you can redistribute it and/or modify
