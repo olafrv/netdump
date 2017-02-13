@@ -261,6 +261,7 @@ foreach($targets as $target)
 				$result = $automata->expect($cmd, $cases_groups, $answers_groups, $outfile, $debug);
 				if ($result == AUTOMATA_TIMEOUT)
 				{
+					logEcho("*** RETRYING", true);
 					continue; // Retry when timeout (connection or response)
 				}
 				else
