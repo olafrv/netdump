@@ -80,7 +80,7 @@ class Automata {
 						// When -1 means this answer can be used always
 						if ($answers[$i][2] == 0) continue; // Answers can't be used anymore
 						if ($answers[$i][2] > 0) --$answers[$i][2]; // Use this answer again (n-times)
-						$debug[] = ["answer (match) -> ", $matched . "\n"];	
+						$debug[] = ["answer (match:{$casename}) -> ", $matched . "\n"];	
 						if (empty($answers[$i][1]))
 						{ 
 							// Skip once, n-times or always (do nothing)
