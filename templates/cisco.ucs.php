@@ -22,38 +22,38 @@ $_TEMPLATE["cisco.ucs"] = array(
 	"cmd" => "ssh -q -oStrictHostKeyChecking=no " . $auth[1] . "@" . $address
 	, "cases" => array(
 		array(
-				array("^.*[Pp]assword:", "sshpassword", EXP_REGEXP)
+			  array("^.*[Pp]assword:", "sshpassword", EXP_REGEXP)
 			, array("^.*[-_\.0-9A-Za-z]+#", "system", EXP_REGEXP)
 			, array("^.*[-_\.0-9A-Za-z]+ \/system #", "backup", EXP_REGEXP, "jump")
 		)
 		, array(
-				array("^.*[-_\.0-9A-Za-z]+ \/system/backup #", "enable", EXP_REGEXP)
+			  array("^.*[-_\.0-9A-Za-z]+ \/system/backup #", "enable", EXP_REGEXP)
 			, array("^.*[Pp]assword:", "password", EXP_REGEXP, "jump")
 		)
 		, array(
-				array("^.*[-_\.0-9A-Za-z]+ \/system/backup\** #", "commit", EXP_REGEXP, "jump")
+			  array("^.*[-_\.0-9A-Za-z]+ \/system/backup\** #", "commit", EXP_REGEXP, "jump")
 		)
 		, array(
-				array("^.*[-_\.0-9A-Za-z]+ \/system/backup #", "exit", EXP_REGEXP)
+			  array("^.*[-_\.0-9A-Za-z]+ \/system/backup #", "exit", EXP_REGEXP)
 			,	array("^.*[-_\.0-9A-Za-z]+ \/system #", "exit", EXP_REGEXP)
 			, array("^.*[-_\.0-9A-Za-z]+#", "exit", EXP_REGEXP, "finish")
 		)
 	)
   , "answers" => array(
 		array(
-				array("sshpassword", "$auth[2]\n", 1)
+			  array("sshpassword", "$auth[2]\n", 1)
 			, array("system", "scope system\n", 1)
 			, array("backup", "scope backup $auth[3]\n", 1)
 		)
     , array(
-				array("enable", "enable\n", 1)
+			  array("enable", "enable\n", 1)
 			, array("password", "$auth[4]\n", 1)
 		)
     , array(
-				array("commit", "commit-buffer\n", 1)
+			  array("commit", "commit-buffer\n", 1)
 		)
     , array(
-				array("exit", "exit\n", 3)
+			  array("exit", "exit\n", 3)
 		)
 	)
 	, "pre-exec" => array(
