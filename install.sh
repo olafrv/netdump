@@ -123,3 +123,14 @@ service apache2 restart
 # MTA for easy cronjob debugging
 apt-get install -y exim4
 
+# TFTP for Legacy devices
+apt-get install -y tftp-hpa tftpd-hpa
+chown netdump:netdump /var/lib/tftpboot
+cat - > /etc/default/tftpd-hpa <<END
+# /etc/default/tftpd-hpa
+
+TFTP_USERNAME="tftp"
+TFTP_DIRECTORY="/var/lib/tftpboot"
+TFTP_ADDRESS="[::]:69"
+TFTP_OPTIONS="-vvv -c --secure --user netdump"
+END

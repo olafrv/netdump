@@ -37,6 +37,8 @@ $_TEMPLATE_ROOTDIR = $_ROOTDIR . "/templates";
 $_ERRORS = array();
 $_EXITCODE = 0;
 
+set_time_limit(1800); // 30 Minutes
+
 $targets = splitlines(readlines($_TARGETS_FILE), ":");
 $auths = splitlines(readlines($_AUTHS_FILE), ":");
 
@@ -223,7 +225,7 @@ foreach($targets as $target)
 
 	// Define expect library global settings
 	ini_set("expect.timeout", 30);			// Expect input timeout?
-	ini_set("expect.loguser", false);		// Expect input printed to stdout?
+	ini_set("expect.loguser", $_DEBUG);		// Expect input printed to stdout?
 	ini_set("expect.match_max", 8192);	// Expect input buffer size?
 	ini_set("expect.logfile", $logfile);// Expect session (input/output) log?
 
@@ -246,36 +248,57 @@ foreach($targets as $target)
 		}
 	}
 
+	// TEMPLATE LOADING
 	if (isset($_TEMPLATE[$template]))
 	{
 			if ($_DEBUG) logEcho(print_r($_TEMPLATE[$template], true));
-			$cmd = $_TEMPLATE[$template]["cmd"]; 
-			$cases_groups = $_TEMPLATE[$template]["cases"]; 
-			$answers_groups = $_TEMPLATE[$template]["answers"]; 
-			if ($_DEBUG) logEcho("*** CMD: " . $cmd, true);
-			$automata = new \Netdump\Automata();
-			$debug = array();
-			$retries = 1;
-			while($retries++ <= 3)
-			{
-				$result = $automata->expect($cmd, $cases_groups, $answers_groups, $outfile, $debug);
-				if ($result == AUTOMATA_TIMEOUT)
-				{
-					logEcho("*** RETRYING", true);
-					continue; // Retry when timeout (connection or response)
-				}
-				else
-				{
-					break; // Stop retrying
-				}	
-			}
-			if ($_DEBUG) foreach($debug as $msg) logEcho($msg[0] . (isset($msg[1]) ? $msg[1] : ""));
 	}
 	else
 	{
 		logError("Undefined template '$template' in file '$template_file'", $target, $logfile);
 		continue;
 	}
+
+	// PRE-EXEC - BEGIN
+	$pre_exec = true;
+	if (isset($_TEMPLATE[$template]["pre-exec"]))
+	{
+		$cmds = $_TEMPLATE[$template]["pre-exec"];
+		foreach($cmds as $cmd)
+		{
+			if ($_DEBUG) logEcho("*** PRE-EXEC: " . $cmd, true);
+			exec($cmd, $cmd_output, $cmd_status);
+			if ($_DEBUG) logEcho(implode("\n", $cmd_output));
+			$pre_exec = $pre_exec &&  ($cmd_status==0);
+			if ($cmd_status!=0) logError("Error on pre-exec '$cmd'", $target, $logfile);
+		}
+		if (!$pre_exec) continue; // Skip this target if pre-exec was not sucessfull
+	}
+	// PRE-EXEC - END
+
+	// AUTOMATA (EXPECT)
+	$cmd = $_TEMPLATE[$template]["cmd"]; 
+	$cases_groups = $_TEMPLATE[$template]["cases"]; 
+	$answers_groups = $_TEMPLATE[$template]["answers"]; 
+	$automata = new \Netdump\Automata();
+	$debug = array();
+	$retries = 1;
+	while($retries++ <= 3)
+	{
+		if ($_DEBUG) logEcho("*** CMD: " . $cmd, true);
+		$result = $automata->expect($cmd, $cases_groups, $answers_groups, $outfile, $debug);
+		if ($result == AUTOMATA_TIMEOUT)
+		{
+			logEcho("*** RETRY #$retries", true);
+			continue; // Retry when timeout (connection or response)
+		}
+		else
+		{
+			break; // Stop retrying
+		}	
+	}
+	// Print out alll debug messages from expect automata
+	if ($_DEBUG) foreach($debug as $msg) logEcho($msg[0] . (isset($msg[1]) ? $msg[1] : ""));
 
 	// Result code is an error?
 	$msg = "";
@@ -302,6 +325,23 @@ foreach($targets as $target)
 	
 	// Check for other common errors?
 	if (!empty($msg)) logError($msg, $target, $logfile);
+
+	// POST-EXEC - BEGIN
+	$post_exec = true;
+	if (isset($_TEMPLATE[$template]["post-exec"]))
+	{
+		$cmds = $_TEMPLATE[$template]["post-exec"];
+		foreach($cmds as $cmd)
+		{
+			if ($_DEBUG) logEcho("*** POST-EXEC: " . $cmd, true);
+			exec($cmd, $cmd_output, $cmd_status);
+			if ($_DEBUG) logEcho(implode("\n", $cmd_output));
+			$post_exec = $post_exec & ($cmd_status==0);
+			if ($cmd_status!=0) logError("Error on post-exec '$cmd'", $target, $logfile);
+		}
+		if (!$post_exec) continue; // Skip this target if pre-exec was not sucessfull
+	}
+	// POST-EXEC - END
 
 	// Dump was really saved?
 	clearstatcache(); // clear stat cache! 

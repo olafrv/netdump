@@ -8,6 +8,7 @@ A tool to remotly backup the configuration of networked switches, routers, firew
 
 * Tested on Ubuntu Linux Server Edition 16.04 LTS (64 bits).
 * Editable templates to backup the following devices:
+  * Cisco UCS (SSH trigger FTP/SFTP/TFTP copy).
   * Cisco IOS (SSH/Telnet).
   * Cisco Nexus OS (SSH/Telnet).
   * Fortigate FortiOS (SSH).
@@ -18,7 +19,7 @@ A tool to remotly backup the configuration of networked switches, routers, firew
 
 # Installation
 
-**WARNING: Requires PHP 5.3 because PHP Expect library is not yet compatible with PHP 7.0**
+**WARNING: Requires PHP 5.6 because PHP Expect library is not yet compatible with PHP 7.0**
 
 Installation script is tested in Ubuntu 16.04 LTS, run installer with:
 ```bash
@@ -33,6 +34,17 @@ Configuration files stays in:
 * */etc/netdump/auth.conf* (Authentication credendials for Targets)
 * */etc/netdump/mail.php* (Mail reporting configuration)
 
+
+**WARNING: Please configure hosts.allow and hosts.deny to protect tftp server**
+
+Example of */etc/hosts.allow* granular tftp client access:
+```
+in.tftpd:192.168.1.*
+```
+Example of */etc/hosts.deny* by default deny all:
+```
+in.tftpd:ALL
+```
 
 # Commands (CLI)
 
@@ -159,9 +171,11 @@ crontab -e
 
 This are the most important directories to backup outside from netdump server:
 
-* */etc* (/etc/apache2 & /etc/netdump)
-* */opt/netdump*
-* */var/lib/netdump*
+* /etc 
+  * */etc/apache2*
+  * */etc/netdump*
+* /opt/netdump
+* /var/lib/netdump
 
 # Logging
 

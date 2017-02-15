@@ -78,7 +78,7 @@ class Automata {
 					if ($answers[$i][0] == $casename)
 					{
 						// When -1 means this answer can be used always
-						if ($answers[$i][2] == 0) continue; // Answers can't be used anymore
+						if ($answers[$i][2] == 0) continue; // This answer can't be used, look for another...
 						if ($answers[$i][2] > 0) --$answers[$i][2]; // Use this answer again (n-times)
 						$debug[] = ["answer (match:{$casename}) -> ", $matched . "\n"];	
 						if (empty($answers[$i][1]))
