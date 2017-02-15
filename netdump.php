@@ -231,32 +231,32 @@ foreach($targets as $target)
 
 	$result; // Result code from expect execution
 
+	// TEMPLATE LOADING
 	$dependencies = explode(".", $template);
 	$depends = array();
+	$templates = true;
 	foreach($dependencies as $dependency)
 	{
 		$depends[] = $dependency;
 		$template_file = $_TEMPLATE_ROOTDIR . "/" . implode(".", $depends) . ".php";
 		if (is_file($template_file)){
 			if ($_DEBUG) logEcho("*** TEMPLATE: $template_file");
-			require_once $template_file;
+			require($template_file);
 		}
 		else
 		{
 			logError("Template file not found ($template_file)", $target, $logfile);
-			continue;
+			$templates = false;
+			break;
 		}
 	}
-
-	// TEMPLATE LOADING
-	if (isset($_TEMPLATE[$template]))
+	if ($templates)
 	{
 			if ($_DEBUG) logEcho(print_r($_TEMPLATE[$template], true));
 	}
 	else
 	{
-		logError("Undefined template '$template' in file '$template_file'", $target, $logfile);
-		continue;
+			continue; // No all templates has been found
 	}
 
 	// PRE-EXEC - BEGIN
