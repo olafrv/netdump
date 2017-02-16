@@ -4,7 +4,7 @@
 ###########
 # Servers #
 ###########
-linux.uname:localhost:127.0.0.1:auth0
+linux.test:localhost:127.0.0.1:auth0
 #############
 # Firewalls #
 #############

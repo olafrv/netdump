@@ -1,6 +1,6 @@
 <?php
 
-$_TEMPLATE["linux.uname"] = array(
+$_TEMPLATE["linux.test"] = array(
 	"cmd" => "ssh -q -oStrictHostKeyChecking=no $auth[1]@$address"
 	, "cases" => array(	
 		array(
@@ -15,7 +15,7 @@ $_TEMPLATE["linux.uname"] = array(
 	, "answers" => array(
 		array(
 			array("password", "$auth[2]\n", 1)
-			, array("prompt", "uname -a\n", 1)
+			, array("prompt", "uname -a; date;\n", 1)
 		)
 		, array(
 			array("exit", "exit\n", 1)
