@@ -21,6 +21,16 @@ A tool to remotly backup the configuration of networked switches, routers, firew
 
 **WARNING: Requires PHP 5.6 because PHP Expect library is not yet compatible with PHP 7.0**
 
+**WARNING: Please configure hosts.allow and hosts.deny to protect tftp server**
+
+Example of */etc/hosts.allow* granular tftp client access:
+```
+in.tftpd:192.168.1.*
+```
+Example of */etc/hosts.deny* by default deny all:
+```
+in.tftpd:ALL
+```
 Installation script is tested in Ubuntu 16.04 LTS, run installer with:
 ```bash
 curl https://raw.githubusercontent.com/olafrv/netdump/master/install.sh | bash -
@@ -34,17 +44,7 @@ Configuration files stays in:
 * */etc/netdump/auth.conf* (Authentication credendials for Targets)
 * */etc/netdump/mail.php* (Mail reporting configuration)
 
-
-**WARNING: Please configure hosts.allow and hosts.deny to protect tftp server**
-
-Example of */etc/hosts.allow* granular tftp client access:
-```
-in.tftpd:192.168.1.*
-```
-Example of */etc/hosts.deny* by default deny all:
-```
-in.tftpd:ALL
-```
+Finally, look at the **logging considerations for auditability**.
 
 # Commands (CLI)
 
@@ -182,7 +182,30 @@ This are the most important directories to backup outside from netdump server:
 * Output (Dump) from devices are saved in: */var/lib/netdump/dumps*
 * Unfiltered expect output are saved in: */var/lib/netdump/logs*
 * Netdump command output are saved in: */var/log/syslog*
-* Cronjobs output are delivered locally by **exim4** MTA 
-  and are available via *mail* client command in a 
-  **netdump** user terminal session.
+* Cronjobs are:
+  * Created on netdump users session (crontab -e)
+  * Output are delivered locally by **exim4** MTA (/var/spool/mail/netdump) 
+  * Cronjobs mails can be read with *mail* client command from netdump user session
+
+** WARNING: Increase retention of syslog and apache logs** 
+
+**/etc/logrotate.d/rsyslog**
+```
+/var/log/syslog
+{
+  rotate 52
+  weekly
+```
+**/etc/logrotate.d/apache2**
+```
+/var/log/apache2/*.log {
+        weekly
+        missingok
+        rotate 52
+```
+
+Then restart the service:
+```
+service restart rsyslog
+```
 
