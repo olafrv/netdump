@@ -8,10 +8,16 @@ linux.uname:localhost:127.0.0.1:auth0
 #############
 # Firewalls #
 #############
-#fortigate-sfg:FWFG1000C:172.16.0.1:auth1
-######################
-# Switches & Routers #
-######################
+#fortigate-sfg:FWFG80C:172.16.0.1:auth1
+#fortigate:FWFG3240C:172.16.0.2:auth1
+############################
+# Cisco Switches & Routers #
+############################
 #cisco:sw1pb:192.168.1.1:auth1
-#cisco.old:sw2p4:192.168.1.2:auth9
-# cisco-enable:c7600:192.168.1.3:auth9
+#cisco.old:sw2p4:192.168.1.2:auth2
+#cisco-enable:c7600:192.168.1.3:auth9
+#############
+# Cisco UCS #
+#############
+#cisco.ucs:ucs01-bin:192.168.2.11:auth10 
+#cisco.ucs:ucs01-xml:192.168.2.11:auth20 
