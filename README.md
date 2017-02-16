@@ -187,7 +187,7 @@ This are the most important directories to backup outside from netdump server:
   * Output are delivered locally by **exim4** MTA (/var/spool/mail/netdump) 
   * Cronjobs mails can be read with *mail* client command from netdump user session
 
-** WARNING: Increase retention of syslog and apache logs** 
+**WARNING: Increase retention of syslog and apache logs** 
 
 **/etc/logrotate.d/rsyslog**
 ```
