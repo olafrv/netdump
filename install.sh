@@ -123,14 +123,45 @@ service apache2 restart
 # MTA for easy cronjob debugging
 apt-get install -y exim4
 
-# TFTP for Legacy devices
+# TFTP, FTP, SFTP, SCP (Common Directory)
+mkdir /opt/netdump/ftp
+chown netdump:netdump /opt/netdump/ftp
+
+# TFTP for legacy devices (Insecure)
 apt-get install -y tftp-hpa tftpd-hpa
-chown netdump:netdump /var/lib/tftpboot
 cat - > /etc/default/tftpd-hpa <<END
 # /etc/default/tftpd-hpa
 
-TFTP_USERNAME="tftp"
-TFTP_DIRECTORY="/var/lib/tftpboot"
+TFTP_USERNAME="netdump"
+TFTP_DIRECTORY="/opt/netdump/ftp"
 TFTP_ADDRESS="[::]:69"
-TFTP_OPTIONS="-vvv -c --secure --user netdump"
+TFTP_OPTIONS="-vvv -c --secure"
 END
+
+# FTP for legacy devices (Insecure)
+apt-get -y install vsftpd
+cat - > /etc/vsftpd.userlist <<END
+# /etc/vsftpd.userlist
+#
+# You must put this in /etc/vsftpd.conf
+#
+# write_enable=YES
+# userlist_enable=YES
+# userlist_file=/etc/vsftpd.userlist
+# userlist_deny=NO
+#
+# The previous configuration bypasss
+# /etc/ftpusers list
+#
+# After all please restart daemon:
+# service vsftpd restart
+#
+netdump
+END
+
+echo *********************************
+echo  WARNING: MANUAL STEP REQUIRED
+echo *********************************
+cat /etc/vsftpd.userlist | grep "^#"
+echo *********************************
+

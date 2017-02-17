@@ -23,6 +23,8 @@ A tool to remotly backup the configuration of networked switches, routers, firew
 
 **WARNING: Please configure hosts.allow and hosts.deny to protect tftp server**
 
+**WARNING: After install some MANUAL STEP MAY BE REQUIRED**
+
 Example of */etc/hosts.allow* granular tftp client access:
 ```
 in.tftpd:192.168.1.*
