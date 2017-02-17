@@ -27,6 +27,12 @@ $_TEMPLATE["cisco.ucs"] = array(
 			, array("^.*[-_\.0-9A-Za-z]+ \/system #", "backup", EXP_REGEXP, "jump")
 		)
 		, array(
+			  array("^.*[-_\.0-9A-Za-z]+ \/system/backup\** #", "set-protocol", EXP_REGEXP, "jump")
+		)
+		, array(
+			  array("^.*[-_\.0-9A-Za-z]+ \/system/backup\** #", "set-user", EXP_REGEXP, "jump")
+		)
+		, array(
 			  array("^.*[-_\.0-9A-Za-z]+ \/system/backup\** #", "set-type", EXP_REGEXP, "jump")
 		)
 		, array(
@@ -36,9 +42,9 @@ $_TEMPLATE["cisco.ucs"] = array(
 			  array("^.*[-_\.0-9A-Za-z]+ \/system/backup\** #", "enable", EXP_REGEXP, "jump")
 		)
 		// Uncomment for FTP, SFTP and SCP
-		//, array(
-		//	array("^.*[Pp]assword:", "password", EXP_REGEXP, "jump")
-		//)
+		, array(
+			array("^.*[Pp]assword:", "password", EXP_REGEXP, "jump")
+		)
 		, array(
 			  array("^.*[-_\.0-9A-Za-z]+ \/system/backup\** #", "commit-buffer", EXP_REGEXP, "jump")
 		)
@@ -52,21 +58,27 @@ $_TEMPLATE["cisco.ucs"] = array(
 		array(
 			  array("sshpassword", "$auth[2]\n", 1)
 			, array("system", "scope system\n", 1)
-			, array("backup", "scope backup $auth[4]\n", 1)
+			, array("backup", "scope backup $auth[6]\n", 1)
 		)
     , array(
-			  array("set-type", "set type $auth[3]\n", 1)
+			  array("set-protocol", "set protocol ftp\n", 1)
 		)
     , array(
-			  array("set-remote-file", "set remote-file " . $target_tag . ".bin\n", 1)
+			  array("set-user", "set user $auth[3]\n", 1)
+		)
+    , array(
+			  array("set-type", "set type $auth[5]\n", 1)
+		)
+    , array(
+			  array("set-remote-file", "set remote-file ftp/" . $target_tag . ".bin\n", 1)
 		)
     , array(
 			  array("enable", "enable\n", 1)
 		)
 		// Uncomment for FTP, SFTP and SCP
-		//, array(
-		//	array("password", "$auth[4]\n", 1)
-		//)
+		, array(
+			array("password", "$auth[4]\n", 1)
+		)
     , array(
 			  array("commit-buffer", "commit-buffer\n", 1)
 		)
@@ -75,11 +87,11 @@ $_TEMPLATE["cisco.ucs"] = array(
 		)
 	)
 	, "pre-exec" => array(
-		"rm -f '/var/lib/tftpboot/" . $target_tag . ".bin'" // Delete any previous backup
+		"rm -f '/opt/netdump/ftp/" . $target_tag . ".bin'" // Delete any previous backup
 	)
 	, "post-exec" => array(
 		"sleep 120" // UCS asynchronous job triggering
-		, "mv '/var/lib/tftpboot/" . $target_tag . ".bin' " . escapeshellarg($outfile)
+		, "mv '/opt/netdump/ftp/" . $target_tag . ".bin' " . escapeshellarg($outfile)
 	)
 );
 
