@@ -12,6 +12,9 @@ fi
 addgroup --system netdump
 adduser --system --disabled-password --home /opt/netdump netdump --ingroup netdump --shell /bin/bash
 
+# Create netdump installation directory
+[ -d /opt/netdump ] || mkdir /opt/netdump
+
 # Without this netdump does not run!
 cat - > /opt/netdump/.bash_profile <<END
 #!/bin/bash
@@ -34,7 +37,6 @@ END
 apt-get -y install git
 
 # Download netdump
-[ -d /opt/netdump ] || mkdir /opt/netdump
 [ -d /opt/netdump/netdump ] || git clone https://github.com/olafrv/netdump.git /opt/netdump/netdump
 
 # Download PHPMailer
