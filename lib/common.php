@@ -79,7 +79,7 @@ function logEcho($msg, $syslog = false)
 {
 	global $_REPORT;
 	$_REPORT[] = $msg;
-	echo $msg . "\n";
+	echo  getTimeString() . " " . $msg . "\n";
 	if ($syslog) logToSyslog(str_replace("\n", " ", $msg));
 }
 
@@ -92,15 +92,20 @@ function logError($msg, $target = NULL, $logfile = NULL){
 	}else{
 		$_ERRORS[] = array("*netdump*", "localhost", $msg, "syslog");
 	}
-	echo $msg . "\n";
+	echo  getTimeString() . " " . $msg . "\n";
 	logToSyslog(str_replace("\n", " ", $msg));
 }
 
-
-function logToSyslog($message, $level = LOG_INFO){
+function getTimeString()
+{
 	$mt = microtime(true);
 	$now = DateTime::createFromFormat("U.u", number_format($mt, 6, '.', ''));
 	$nowf = $now->format("Y-m-d H:i:s.u");
+	return $nowf;
+}
+
+function logToSyslog($message, $level = LOG_INFO){
+	$nowf = getTimeString();
 	openlog("netdump", LOG_PID | LOG_CONS, LOG_SYSLOG);
 	syslog($level, "$nowf $message");
 	closelog();
