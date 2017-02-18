@@ -94,8 +94,8 @@ pear install Console_Table
 [ -d /var/lib/netdump ] || mkdir /var/lib/netdump
 
 # Default config files
-[ -f /etc/netdump/targets.conf ] || cp /opt/netdump/netdump/conf/targets.conf.example /etc/netdump/targets.conf
-[ -f /etc/netdump/auths.conf ] || cp /opt/netdump/netdump/conf/auths.conf.example /etc/netdump/auths.conf
+[ -f /etc/netdump/targets.conf ] || cp /opt/netdump/netdump/conf/targets.conf /etc/netdump/targets.conf
+[ -f /etc/netdump/auths.conf ] || cp /opt/netdump/netdump/conf/auths.conf /etc/netdump/auths.conf
 chmod 600 /etc/netdump/*
 
 # Default permissions
@@ -115,7 +115,7 @@ a2ensite default-ssl
 
 # GitWeb install (Browse dump versions)
 apt-get -y install git gitweb
-sed -i 's/\/var\/lib\/git/\/var\/lib\/netdump\/git/g' /etc/gitweb.conf
+[ -f /etc/gitweb.conf ] || cp /opt/netdump/netdump/conf/gitweb.conf /etc/gitweb.conf
 
 # Apply config in Apache Web Server
 service apache2 restart
@@ -140,28 +140,10 @@ END
 
 # FTP for legacy devices (Insecure)
 apt-get -y install vsftpd
+[ -f /etc/vsftpd.conf ] || cp /opt/netdump/netdump/conf/vsftpd.conf /etc/vsftpd.conf
 cat - > /etc/vsftpd.userlist <<END
 # /etc/vsftpd.userlist
-#
-# You must put this in /etc/vsftpd.conf
-#
-# write_enable=YES
-# userlist_enable=YES
-# userlist_file=/etc/vsftpd.userlist
-# userlist_deny=NO
-#
-# The previous configuration bypasss
-# /etc/ftpusers list
-#
-# After all please restart daemon:
-# service vsftpd restart
-#
 netdump
 END
-
-echo *********************************
-echo  WARNING: MANUAL STEP REQUIRED
-echo *********************************
-cat /etc/vsftpd.userlist | grep "^#"
-echo *********************************
+service vsftpd restart
 

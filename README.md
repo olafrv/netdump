@@ -26,18 +26,9 @@ It is not the [netdump kernel module, client or server utility](https://linux.di
 
 **WARNING: Requires PHP 5.6 because PHP Expect library is not yet compatible with PHP 7.0**
 
-**WARNING: Installation MAY REQUIRE MANUAL STEPS at the end**
+**WARNING: Installation REQUIRE MANUAL STEPS described in other section of this manual**
 
-**WARNING: Please configure hosts.allow and hosts.deny to protect tftp server**
-
-Example of */etc/hosts.allow* granular tftp client access:
-```
-in.tftpd:192.168.1.*
-```
-Example of */etc/hosts.deny* by default deny all:
-```
-in.tftpd:ALL
-```
+``
 Installation script is tested in Ubuntu 16.04 LTS, run installer with:
 ```bash
 curl https://raw.githubusercontent.com/olafrv/netdump/master/install.sh | bash -
@@ -51,7 +42,26 @@ Configuration files stays in:
 * */etc/netdump/auth.conf* (Authentication credendials for Targets)
 * */etc/netdump/mail.php* (Mail reporting configuration)
 
-Finally, look at the **logging considerations for auditability**.
+Output (Dump) from devices are saved in: 
+
+* */var/lib/netdump/dumps*
+
+Dumps versions are saved in: 
+
+* */var/lib/netdump/git* an available via [GitWeb](https://git-scm.com/docs/gitweb) (/gitweb) in the same server.
+
+Finally, some manual configuration are REQUIRED:
+
+* Look at the **Security**, **Logging** and **Scheduled Task**.
+
+# Security Considerations
+
+* Please configure iptables to protect FTP, SFTP, SCP, SSH and TFTP access to netdump server.
+* Protect unauthorized access to GitWeb using [Apache Auth Module](http://httpd.apache.org/docs/2.0/mod/mod_auth.html)
+
+**WARNING**: By default, it is installed LDAP / Active Directory authentication 
+[conf/gitweb.conf](https://github.com/olafrv/netdump/tree/master/conf) you can
+comment the lines if you dont need them or prefer another security measure.
 
 # Commands (CLI)
 
@@ -158,21 +168,19 @@ netdump clone target destination [commit]
 **destination:** is directory (e.g. /tmp).
 **commit:** if specified should be taked from the output of the **commit command**.
 
-
-# Version Control (Git)
-
-* Dumps versions are saved in: */var/lib/netdump/git* an available via [GitWeb](https://git-scm.com/docs/gitweb) (/gitweb) in the same server.
-* Protect unauthorized access to GitWeb using [Apache Auth Module](http://httpd.apache.org/docs/2.0/mod/mod_auth.html)
-* Apache LDAP / Active Directory authentication [git/gitweb.example.conf](https://github.com/olafrv/netdump/tree/master/git)
-
 # Cron Jobs
 
-* An example of crontab is here [conf/crontab.example](https://github.com/olafrv/netdump/tree/master/conf)
+* An example of crontab is here [conf/crontab](https://github.com/olafrv/netdump/tree/master/conf)
 * Cron jobs should run with **netdump** user and edited as follows:
 ```
 sudo su - netdump
 crontab -e
 ```
+
+* Cronjobs are:
+  * Created on netdump users session (crontab -e)
+  * Output are delivered locally by **exim4** MTA (/var/spool/mail/netdump) 
+  * Cronjobs mails can be read with *mail* client command from netdump user session
 
 # Backup (Global)
 
@@ -186,13 +194,8 @@ This are the most important directories to backup outside from netdump server:
 
 # Logging
 
-* Output (Dump) from devices are saved in: */var/lib/netdump/dumps*
 * Unfiltered expect output are saved in: */var/lib/netdump/logs*
 * Netdump command output are saved in: */var/log/syslog*
-* Cronjobs are:
-  * Created on netdump users session (crontab -e)
-  * Output are delivered locally by **exim4** MTA (/var/spool/mail/netdump) 
-  * Cronjobs mails can be read with *mail* client command from netdump user session
 
 **WARNING: Increase retention of syslog and apache logs** 
 
