@@ -292,7 +292,7 @@ foreach($targets as $target)
 		}	
 	}
 	// Print out alll debug messages from expect automata
-	if ($_DEBUG) foreach($debug as $msg) logEcho($msg[0] . (isset($msg[1]) ? $msg[1] : ""));
+	if ($_DEBUG) foreach($debug as $msg) if (!empty($msg[0])) logEcho($msg[0] . (isset($msg[1]) ? $msg[1] : ""));
 
 	// Result code is an error?
 	$msg = "";
@@ -380,7 +380,7 @@ foreach($targets as $target)
 if (!empty($_ERRORS))
 {
 	$errorList = tabulate($_ERRORS, array("Tag", "Addr", "Error", "Log"));
-	logEcho($errorList);
+	logEcho("\n" . $errorList);
 	$_REPORT = array_merge(
 		array(
 			"Targets processed " . $targets_processed . "/" . $targets_count . "."

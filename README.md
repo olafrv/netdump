@@ -4,6 +4,10 @@
 
 A tool to remotly backup the configuration of networked switches, routers, firewalls and servers using expect php library, git version control and many other Linux utilities.
 
+## What it is not?
+
+It is not the [netdump kernel module, client or server utility](https://linux.die.net/man/8/netdump) for Linux.
+
 ## Features
 
 * Tested on Ubuntu Linux Server Edition 16.04 LTS (64 bits).
@@ -12,6 +16,7 @@ A tool to remotly backup the configuration of networked switches, routers, firew
   * Cisco IOS (SSH/Telnet).
   * Cisco Nexus OS (SSH/Telnet).
   * Fortigate FortiOS (SSH).
+  * Foundry ServerIron (Telnet).
 * Asisted version control with Git repositories per device.
 * Friendly Web browsing of backups via secured GitWeb interface.
 * SSH client param included to support old devices (Weak protocols).
