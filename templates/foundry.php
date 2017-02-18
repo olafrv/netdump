@@ -11,9 +11,10 @@ $_TEMPLATE["foundry"] = array(
 			array("*#", "prompt", EXP_GLOB, "jump"),
 		),
 		array(
+			array("[\010]+[\x20h]+[\010]", "chr", EXP_REGEXP), // Backspace-Space-Backspace
 			array("*\n", "save", EXP_GLOB),
 			array("*--More--*", "more", EXP_GLOB),
-			array("*#", "exit", EXP_GLOB, "finish")
+			array("*#", "exit", EXP_GLOB, "finish"),
 		)
 	),
 	"answers" => array(
@@ -24,7 +25,6 @@ $_TEMPLATE["foundry"] = array(
 			array("prompt", "show configuration\r\n", 1)
 		),
 		array(
-			array("show run", "", 1),
 			array("more", " ", -1),
 			array("exit", "exit\n", 1)
 		)
