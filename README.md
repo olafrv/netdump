@@ -21,9 +21,9 @@ A tool to remotly backup the configuration of networked switches, routers, firew
 
 **WARNING: Requires PHP 5.6 because PHP Expect library is not yet compatible with PHP 7.0**
 
-**WARNING: Please configure hosts.allow and hosts.deny to protect tftp server**
-
 **WARNING: Installation MAY REQUIRE MANUAL STEPS at the end**
+
+**WARNING: Please configure hosts.allow and hosts.deny to protect tftp server**
 
 Example of */etc/hosts.allow* granular tftp client access:
 ```
