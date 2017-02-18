@@ -28,8 +28,7 @@ It is not the [netdump kernel module, client or server utility](https://linux.di
 
 **WARNING: Installation REQUIRE MANUAL STEPS described in other section of this manual**
 
-``
-Installation script is tested in Ubuntu 16.04 LTS, run installer with:
+Installation script is tested in Ubuntu 16.04 LTS, run installer on a 'root' session:
 ```bash
 curl https://raw.githubusercontent.com/olafrv/netdump/master/install.sh | bash -
 ```
