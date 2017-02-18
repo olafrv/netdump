@@ -29,7 +29,13 @@ class Automata {
 
 	function strgetchr($str, $to_string = true){
 		$chars = array();
-		foreach(str_split($str) as $char) $chars[] = 'chr(' . ord($char) . ')';
+		foreach(str_split($str) as $char){
+			if (ctype_print($char)){
+			 $chars[] = $char;
+			}else{
+			 $chars[] = 'chr(' . ord($char) . ')';
+			}
+		}
 		if ($to_string){
 			return implode(", ", $chars);
 		}else{
