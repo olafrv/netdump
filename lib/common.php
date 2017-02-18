@@ -79,7 +79,7 @@ function logEcho($msg, $syslog = false)
 {
 	global $_REPORT;
 	$_REPORT[] = $msg;
-	echo  getTimeString() . " " . $msg . "\n";
+	echo "*** " .  getTimeString() . " " . $msg . "\n";
 	if ($syslog) logToSyslog(str_replace("\n", " ", $msg));
 }
 
@@ -92,7 +92,7 @@ function logError($msg, $target = NULL, $logfile = NULL){
 	}else{
 		$_ERRORS[] = array("*netdump*", "localhost", $msg, "syslog");
 	}
-	echo  getTimeString() . " " . $msg . "\n";
+	echo "*** " . getTimeString() . " " . $msg . "\n";
 	logToSyslog(str_replace("\n", " ", $msg));
 }
 
