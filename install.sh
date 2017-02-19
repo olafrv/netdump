@@ -98,6 +98,7 @@ pear install Console_Table
 # Default config files
 [ -f /etc/netdump/targets.conf ] || cp /opt/netdump/netdump/conf/targets.conf /etc/netdump/targets.conf
 [ -f /etc/netdump/auths.conf ] || cp /opt/netdump/netdump/conf/auths.conf /etc/netdump/auths.conf
+[ -f /etc/netdump/mail.php ] || cp /opt/netdump/netdump/conf/mail.php /etc/netdump/mail.php
 chmod 600 /etc/netdump/*
 
 # Default permissions
