@@ -40,7 +40,7 @@ apt-get -y install git
 [ -d /opt/netdump/netdump ] || git clone https://github.com/olafrv/netdump.git /opt/netdump/netdump
 
 # Download PHPMailer
-[ -d /usr/share/php/PHPMailer ] || git clone https://github.com/PHPMailer/PHPMailer.git /usr/share/php/PHPmailer
+[ -d /usr/share/php/PHPMailer ] || git clone https://github.com/PHPMailer/PHPMailer.git /usr/share/php/PHPMailer
 
 # netdump as path command
 ln -s /opt/netdump/netdump/netdump.php /opt/netdump/netdump/netdump 
