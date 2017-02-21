@@ -208,7 +208,7 @@ foreach($targets as $target)
 
 	$targets_processed++; // Process the target!
 
-	logEcho("*** TARGET: $template, $target_tag, $address, $auth[1]", true);
+	logEcho("*** TARGET: $template, $target_tag, $address", true);
 
 	// Define and create directory and file path
 	$outfile_dir = $_OUTFILE_ROOTDIR . "/" . $target_tag . "/" . $outfile_datedir;
