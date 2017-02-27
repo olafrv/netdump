@@ -15,7 +15,7 @@ It is not the [netdump kernel module, client or server utility](https://linux.di
   * Cisco UCS (SSH trigger FTP/SFTP/TFTP copy).
   * Cisco IOS (SSH/Telnet).
   * Cisco Nexus OS (SSH/Telnet).
-  * Fortigate FortiOS (SSH).
+  * Fortigate FortiOS (SSH trigger FTP/TFTP copy).
   * Foundry ServerIron (Telnet).
 * Asisted version control with Git repositories per device.
 * Friendly Web browsing of backups via secured GitWeb interface.
