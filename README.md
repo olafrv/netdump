@@ -51,7 +51,7 @@ Dumps versions are saved in:
 
 Finally, some manual configuration are REQUIRED:
 
-* Look at the **Security**, **Logging** and **Scheduled Task**.
+* Look at the **Security**, **Logging** and **Scheduled Tasks**.
 
 # Security Considerations
 
@@ -167,7 +167,7 @@ netdump clone target destination [commit]
 **destination:** is directory (e.g. /tmp).
 **commit:** if specified should be taked from the output of the **commit command**.
 
-# Cron Jobs
+# Scheduled Tasks (Cron Jobs)
 
 * An example of crontab is here [conf/crontab](https://github.com/olafrv/netdump/tree/master/conf)
 * Cron jobs should run with **netdump** user and edited as follows:
