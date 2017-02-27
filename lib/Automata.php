@@ -37,7 +37,7 @@ class Automata {
 			}
 		}
 		if ($to_string){
-			return implode(", ", $chars);
+			return implode(" ", $chars);
 		}else{
 			return $chars;
 		}
@@ -74,9 +74,9 @@ class Automata {
 				if ($casename == "save")
 				{ 
 					// Save input to file
+					$written = 0;
 					if (!is_null($outstream))
 					{
-						$written = 0;
 						if (strlen($matched)>0) $written = fwrite($outstream, $matched); // Save match (buffer)
 						$debug[] = ["save [$written] -> ", $matched . "\n"];
 					}
