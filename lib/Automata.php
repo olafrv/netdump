@@ -44,7 +44,8 @@ class Automata {
 	}
 
 	function expect($cmd, $cases_groups, $answers_groups, $outfile, &$debug){
-		$outstream = fopen($outfile, "w+"); // Where to save output stream
+		$outstream = NULL; // Not always it is needed to save expect selected output
+		if (!is_null($outfile)) $outstream = fopen($outfile, "w+"); // Here is saved selected output
 		$stream = expect_popen($cmd); // Command input/ouput stream
 		for($iteration = 0; $iteration < count($cases_groups); $iteration++)
 		{
@@ -73,9 +74,16 @@ class Automata {
 				if ($casename == "save")
 				{ 
 					// Save input to file
-					$written = 0;
-					if (strlen($matched)>0) $written = fwrite($outstream, $matched); // Save match (buffer)
-					$debug[] = ["save [$written] -> ", $matched . "\n"];
+					if (!is_null($outstream))
+					{
+						$written = 0;
+						if (strlen($matched)>0) $written = fwrite($outstream, $matched); // Save match (buffer)
+						$debug[] = ["save [$written] -> ", $matched . "\n"];
+					}
+					else
+					{
+						$debug[] = ["save [$written] -> ", "skipped because no output file defined!\n"];
+					}
 					continue;	
 				}
 				$answered = false;
@@ -136,7 +144,7 @@ class Automata {
 			}
 		}
 		fclose($stream);
-		fclose($outstream);
+		if (!is_null($outstream)) fclose($outstream);
 		switch($casename){
 			case EXP_EOF:
 				$result = AUTOMATA_EOF;
