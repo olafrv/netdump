@@ -33,10 +33,15 @@ function readlines($file, $skip = "#"){
 	return $lines;
 }
 
+function strclean($str){
+	return trim(preg_replace('/[[:^print:]]/', '', $str)); 
+}
+
 function splitlines($lines, $delimiter){
 	$array = array(); 
 	foreach($lines as $line){
-  	$array[] = explode($delimiter, trim($line));
+		$tokens = explode($delimiter, trim($line));
+		$array[] = array_map("strclean", $tokens); // Trim spaces and non printable
 	}
 	return $array;
 }
@@ -71,10 +76,6 @@ function strvarsub($str, $vars){
 	return $str;
 }
 
-function strclean($str){
-	return trim(preg_replace('/[[:^print:]]/', '', $str)); 
-}
-
 function logEcho($msg, $syslog = false)
 {
 	global $_REPORT;
@@ -88,7 +89,7 @@ function logError($msg, $target = NULL, $logfile = NULL){
 	$msg = "*** ERROR: *** " . $msg;
 	if (!is_null($target)){
 		list($template, $target_tag, $address, $auth_tag) = $target;
-		$_ERRORS[] = array($target_tag, $address, substr($msg,0,20), basename($logfile));
+		$_ERRORS[] = array($target_tag, $address, substr($msg,0,20), (!is_null($logfile) ? basename($logfile) : ""));
 	}else{
 		$_ERRORS[] = array("*netdump*", "localhost", $msg, "syslog");
 	}
