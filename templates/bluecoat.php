@@ -7,6 +7,7 @@
 
 $_TEMPLATE["bluecoat"] = array(
 	"cmd" => "ssh -q -oStrictHostKeyChecking=no " . $auth[1] . "@" . $address
+	, "output" => "async"
 	, "cases" => array(
 		array(
 			  array("^.*[Pp]assword:", "sshpassword", EXP_REGEXP, "jump")
@@ -54,18 +55,16 @@ $_TEMPLATE["bluecoat"] = array(
 		)
 	)
 	, "pre-exec" => array(
-		"rm -f '/opt/netdump/ftp/".$target_tag."-backup.cmd'"
-		,"rm -f '/opt/netdump/ftp/".$target_tag."-config.ldi'"
-		,"rm -f '/opt/netdump/ftp/".$target_tag."-settings.cfg'"
-		,"rm -f '/opt/netdump/ftp/".$target_tag."-basic.cfg'"
+		  "rm -f '/opt/netdump/ftp/".$target_tag."-backup.cmd'"
+		, "rm -f '/opt/netdump/ftp/".$target_tag."-config.ldi'"
+		, "rm -f '/opt/netdump/ftp/".$target_tag."-settings.cfg'"
+		, "rm -f '/opt/netdump/ftp/".$target_tag."-basic.cfg'"
 	)
-	/*
 	, "post-exec" => array(
-		"rm -f '/opt/netdump/ftp/".$target_tag."-backup.cmd'"
-		,"rm -f '/opt/netdump/ftp/".$target_tag."-config.ldi'"
-		,"rm -f '/opt/netdump/ftp/".$target_tag."-settings.cfg'"
-		,"rm -f '/opt/netdump/ftp/".$target_tag."-basic.cfg'"
+		  "mv '/opt/netdump/ftp/".$target_tag."-backup.cmd' "   . escapeshellarg($gitfile_dir."/")
+		, "mv '/opt/netdump/ftp/".$target_tag."-config.ldi' "   . escapeshellarg($gitfile_dir."/")
+		, "mv '/opt/netdump/ftp/".$target_tag."-settings.cfg' " . escapeshellarg($gitfile_dir."/")
+		, "mv '/opt/netdump/ftp/".$target_tag."-basic.cfg' "    . escapeshellarg($gitfile_dir."/")
 	)
-	*/
 );
 

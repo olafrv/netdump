@@ -93,7 +93,7 @@ if (isset($argv[1]))
 						}
 						else
 						{	
-							help(); exit(-1);	
+							help(); exit(-1);	// Show help (no argument)
 						}
 						break;
 
@@ -109,7 +109,7 @@ if (isset($argv[1]))
 						}
 						else
 						{	
-							help(); exit(-1);	
+							help(); exit(-1);	// Show help (no argument)
 						}
 						break;
 
@@ -129,19 +129,18 @@ if (isset($argv[1]))
 						}
 						else
 						{	
-							help(); exit(-1);	
+							help(); exit(-1); // Show help (no argument)	
 						}
 						break;
 
 					default:
-						// Show help (bad argument)
-						help(); exit(-1);	
+						help(); exit(-1);	// Show help (bad argument)
 						break;
 				}
 			}
 			else
 			{
-				help(); exit(-1);	
+				help(); exit(-1);	// Show help (no argument)
 			}
 			break;
 
@@ -159,7 +158,7 @@ if (isset($argv[1]))
 			}
 			else
 			{	
-				help(); exit(-1);	
+				help(); exit(-1);	// Show help (no argument)
 			}
 			break;
 
@@ -177,40 +176,55 @@ if (isset($argv[1]))
 			break;
 
 		default:
-			// Show help (bad argument)
-			help(); exit(-1);	
+			help(); exit(-1);	// Show help (bad argument)
 			break;
 	}
 }
 else
 {
-	// Show help (no argument)
-	help(); exit(-1);	
+	help(); exit(-1);	// Show help (no argument)
 }
 
 // From here is only for run or debug
-if (($_RUN || $_DEBUG) && isset($argv[2]) && is_null(tabget($targets, 1, $argv[2]))){
-	logError("Target '" . $argv[2] . "' does not exists"); 
+$targets_count = count($targets);
+if (($_RUN || $_DEBUG) && isset($argv[2]))
+{
+	$target_found = tabget($targets, 1, $argv[2]);
+	if (!is_null($target_found))
+	{
+		$targets_counts = 1;
+		$targets = array($target_found);	
+	}
+	else
+	{
+		logError("Target '" . $argv[2] . "' does not exists"); 
+		help(); exit(); // Show help (wrong argument)
+	}
 }
 
-$targets_count = count($targets);
 $targets_processed = 0;
 foreach($targets as $target)
 {
+	$targets_processed++; // Count target processed!
 
-	if (count($target)<4) continue; // Skip empty lines from targets.conf
-	$target = array_map("strclean", $target); // Trim spaces and non printable from targets.conf
+	if (count($target) < 4)
+	{
+		logError("Wrong target specification '".implode(" ", $target) . "'", $target, NULL);
+		continue; // Skip wrong target specification from 'targets.conf'
+	}
 
-	list($template, $target_tag, $address, $auth_tag) = $target; // Tokenize target array
-	if (isset($argv[2]) and $target_tag != $argv[2]) continue; // Filter for specific target (tag)
+	list($template, $target_tag, $address, $auth_tag) = $target; // Tokenize target specification
 
 	$auth = tabget($auths, 0, $auth_tag); // Find the authentication credentials for the target
-
-	$targets_processed++; // Process the target!
+	if (is_null($auth))
+	{
+		logError("Authentication credential '$auth_tag' does not exists!", $target, NULL);
+		continue;
+	}
 
 	logEcho("*** TARGET: $template, $target_tag, $address", true);
 
-	// Define and create directory and file path
+	// *** DIRECTORY AND FILE PATHS CREATION - BEGIN
 	$outfile_dir = $_OUTFILE_ROOTDIR . "/" . $target_tag . "/" . $outfile_datedir;
 	$gitfile_dir = $_GITFILE_ROOTDIR . "/" . $target_tag;
 	$logfile_dir = $_LOGFILE_ROOTDIR . "/" . $target_tag . "/" . $outfile_datedir;
@@ -222,18 +236,26 @@ foreach($targets as $target)
 	$outfile = $outfile_dir . "/" .  $outfile_datepfx . "_" . $target_tag . ".conf";
 	$gitfile = $gitfile_dir . "/" .  $target_tag . ".conf";
 	$logfile = $logfile_dir . "/" .  $outfile_datepfx . "_" . $target_tag . ".log";
+	// *** DIRECTORY AND FILE PATHS CREATION - END
 
-	// Define expect library global settings
+	// *** EXPECT GLOBAL SETTING - BEGIN
 	ini_set("expect.timeout", 30);			// Expect input timeout?
 	ini_set("expect.loguser", $_DEBUG);		// Expect input printed to stdout?
 	ini_set("expect.match_max", 8192);	// Expect input buffer size?
 	ini_set("expect.logfile", $logfile);// Expect session (input/output) log?
+	// *** EXPECT GLOBAL SETTING - END
 
-	$result; // Result code from expect execution
-
-	// TEMPLATE LOADING
+	// *** TEMPLATE LOADING - BEGIN
+  //
+	// Variables allowed to use (pre-defined) in templates:
+  // * $target, $target_tag, $address
+  // * $auth, $auth_tag
+  // * $outfile, $outfile_dir
+  // * $gitfile, $gitfile_dir
+  //
 	$template_file = $_TEMPLATE_ROOTDIR . "/" . $template . ".php";
-	if (is_file($template_file)){
+	if (is_file($template_file))
+	{
 		if ($_DEBUG) logEcho("*** TEMPLATE: $template_file");
 		require($template_file);
 		if (isset($_TEMPLATE[$template]))
@@ -242,8 +264,7 @@ foreach($targets as $target)
 		}
 		else
 		{
-			logError(
-				"Undefined \$_TEMPLATE[\"". $template . "\"] in '$template_file'", $target, $logfile);
+			logError("Undefined \$_TEMPLATE[\"". $template . "\"] in '$template_file'", $target, $logfile);
 			continue;
 		}
 	}
@@ -252,8 +273,9 @@ foreach($targets as $target)
 		logError("Template file not found '$template_file'", $target, $logfile);
 		continue;
 	}
+	// *** TEMPLATE LOADING - END
 
-	// PRE-EXEC - BEGIN
+	// *** PRE-EXEC - BEGIN
 	$pre_exec = true;
 	if (isset($_TEMPLATE[$template]["pre-exec"]))
 	{
@@ -268,59 +290,89 @@ foreach($targets as $target)
 		}
 		if (!$pre_exec) continue; // Skip this target if pre-exec was not sucessfull
 	}
-	// PRE-EXEC - END
+	// *** PRE-EXEC - END
 
-	// AUTOMATA (EXPECT)
+	// *** AUTOMATA - BEGIN
 	$cmd = $_TEMPLATE[$template]["cmd"]; 
 	$cases_groups = $_TEMPLATE[$template]["cases"]; 
 	$answers_groups = $_TEMPLATE[$template]["answers"]; 
-	$automata = new \Netdump\Automata();
-	$debug = array();
-	$retries = 1;
-	while($retries++ <= 3)
+	$output_file_sync = isset($_TEMPLATE[$template]["output"]) ? $_TEMPLATE[$template]["output"] : "sync";
+	$automata = new \Netdump\Automata(); // Expect automata
+	$result; // Result code from expect execution
+	$retries = 0; // Retries counter
+	$retries_max = 3;
+	$retries_sleep = 5;
+
+	while(++$retries <= $retries_max)
 	{
-		if ($_DEBUG) logEcho("*** CMD: " . $cmd, true);
-		$result = $automata->expect($cmd, $cases_groups, $answers_groups, $outfile, $debug);
-		if ($result == AUTOMATA_TIMEOUT)
+		$debug = array();
+
+		if ($retries>1)
 		{
-			logEcho("*** RETRY #$retries", true);
-			continue; // Retry when timeout (connection or response)
+			if ($_DEBUG) logEcho("*** SLEEP($retries_sleep): Before retry...", true);
+			sleep($retries_sleep); 
+		}
+
+		if ($_DEBUG) logEcho("*** CMD($retries/$retries_max): " . $cmd, true);
+
+		if ($output_file_sync=="async")
+		{
+			if ($_DEBUG) logEcho("*** DUMP: Asynchronous should be managed by 'post-exec'", true);
+			$result = $automata->expect($cmd, $cases_groups, $answers_groups, NULL, $debug);
 		}
 		else
 		{
-			break; // Stop retrying
-		}	
-	}
-	// Print out alll debug messages from expect automata
-	if ($_DEBUG) foreach($debug as $msg) if (!empty($msg[0])) logEcho($msg[0] . (isset($msg[1]) ? $msg[1] : ""));
+			if ($_DEBUG) logEcho("*** DUMP: Created by expect (Synchronous)", true);
+			$result = $automata->expect($cmd, $cases_groups, $answers_groups, $outfile, $debug);
+		}
 
-	// Result code is an error?
-	$msg = "";
+		if ($_DEBUG) foreach($debug as $msg) if (!empty($msg[0])) logEcho($msg[0] . (isset($msg[1]) ? $msg[1] : "")); // Expect debug messages
+
+		if ($retries < $retries_max)
+		{ 
+			if ($result == AUTOMATA_TIMEOUT)
+			{
+				logEcho("*** Timeout!, retrying...", true);
+				continue; // Retry when timeout (connection or response)
+			}
+			else if ($output_file_sync=="sync")
+			{
+				clearstatcache(); 
+				if (!is_file($outfile) || filesize($outfile)==0){
+					logEcho("*** Empty dump!, retrying...", true);
+					continue; // Retry when sync empty output file
+				}
+			}
+		}
+
+		break; // Everything seems OK (Stop retrying)!
+	}
+
 	switch($result)
 	{
 		case AUTOMATA_EOF:
-			// End of file (stream)
-			if ($_DEBUG) logEcho("*** EOF");
+			if ($_DEBUG) logEcho("*** EOF"); // End of file (stream)
 			break;
 		case AUTOMATA_TIMEOUT:
 			$msg = "Error timeout!"; // Connection or expect timeout
+			logError($msg, $target, $logfile);
 			break;
 		case AUTOMATA_FULLBUFFER:
 			$msg = "Error buffer full!"; // Buffer full? => Raise expect buffer
+			logError($msg, $target, $logfile);
 			break;
 		case AUTOMATA_FINISHED:
-			// Finished (OK)
-			if ($_DEBUG) logEcho("*** FINISHED");
+			if ($_DEBUG) logEcho("*** FINISHED"); // As programmed in cases so it's ok
 			break;
 		default:
 			$msg = "Unknown case error result. Please debug!"; // Unknown error!
+			logError($msg, $target, $logfile);
 			break;
 	}
-	
-	// Check for other common errors?
-	if (!empty($msg)) logError($msg, $target, $logfile);
+	if ($_DEBUG && !is_null(tabget($_ERRORS, 1, $target_tag))) logEcho("*** EXPECT LOG: $logfile");
+	// *** AUTOMATA - END
 
-	// POST-EXEC - BEGIN
+	// *** POST-EXEC - BEGIN
 	$post_exec = true;
 	if (isset($_TEMPLATE[$template]["post-exec"]))
 	{
@@ -335,12 +387,11 @@ foreach($targets as $target)
 		}
 		if (!$post_exec) continue; // Skip this target if pre-exec was not sucessfull
 	}
-	// POST-EXEC - END
+	// *** POST-EXEC - END
 
-	// Dump was really saved?
-	clearstatcache(); // clear stat cache! 
-	$outfile_size = filesize($outfile);
-	if (is_file($outfile) && $outfile_size>0)
+	// *** VERSION CONTROL - BEGIN
+	clearstatcache(); $outfile_size = is_file($outfile) ? filesize($outfile) : 0;
+	if ($outfile_size>0)
 	{
 		if ($_DEBUG) logEcho("*** DUMP [" . $outfile_size  . "]: " . $outfile, true);
 	}
@@ -348,10 +399,9 @@ foreach($targets as $target)
 	{
 		logError("Empty file '$outfile'!", $target, $logfile);
 	}
-
-	// Git repo create, backup configuration add and commit actions
 	if (empty($_ERRORS))
 	{
+		// Git repo create, backup configuration add and commit actions
 		$cmd = "/bin/bash $_ROOTDIR/git/git.sh" 
 		. " " . escapeshellarg($gitfile_dir)
 		. " " . escapeshellarg($outfile)
@@ -370,13 +420,11 @@ foreach($targets as $target)
 			logError("Error ($cmd_status) exec '$cmd' trace: " . implode("\n", $cmd_output), $target, $logfile);
 		}
 	}
-
-	// Show log file path if there were target errors
-	if ($_DEBUG && !is_null(tabget($_ERRORS, 1, $target_tag))) logEcho("LOG: $logfile");
+	// *** VERSION CONTROL - END
 
 }
 
-// Final message (report)
+// *** FINAL REPORT - BEGIN
 if (!empty($_ERRORS))
 {
 	$errorList = tabulate($_ERRORS, array("Tag", "Addr", "Error", "Log"));
@@ -401,7 +449,10 @@ if (!empty($_ERRORS))
 		, $_REPORT
 	);
 }
+// *** FINAL REPORT - END
 
+
+// *** EMAIL NOTIFICATION - BEGIN
 $body = implode("\n", $_REPORT);
 $subject = "Netdump [OK:" . $targets_processed . "/" . $targets_count . "]";
 if ($_EXITCODE != 0) $subject = "Netdump [" . count($_ERRORS) . " errors]";
@@ -424,5 +475,7 @@ if ($_MAIL_ACTIVE){
 		logError($sent["error"]);
 	}
 }
+// *** EMAIL NOTIFICATION - END
 
 exit($_EXITCODE);
+

@@ -2,6 +2,7 @@
 
 $_TEMPLATE["fortinet.fortios"] = array(
 	"cmd" => "ssh -q -oStrictHostKeyChecking=no " . $auth[1] . "@" . $address
+	, "output" => "async"
 	, "cases" => array(
 		array(
 			  array("^.*[Pp]assword:", "sshpassword", EXP_REGEXP)
