@@ -444,7 +444,7 @@ foreach($targets as $target)
 if (!empty($_ERRORS))
 {
 	$errorList = tabulate($_ERRORS, array("Tag", "Addr", "Error", "Log"));
-	logEcho("\n" . $errorList);
+	logEcho("*** FINAL ERROR REPORT\n" . $errorList);
 	$_REPORT = array_merge(
 		array(
 			"Targets processed " . $targets_processed . "/" . $targets_count . "."
