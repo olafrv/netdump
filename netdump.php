@@ -389,16 +389,22 @@ foreach($targets as $target)
 	}
 	// *** POST-EXEC - END
 
+	// *** EMPTY OUTPUT FILE - BEGIN
+	if ($output_file_sync=="sync")
+	{
+		clearstatcache(); $outfile_size = is_file($outfile) ? filesize($outfile) : 0;
+		if ($outfile_size>0)
+		{
+			if ($_DEBUG) logEcho("*** DUMP [" . $outfile_size  . "]: " . $outfile, true);
+		}
+		else
+		{
+			logError("Empty file '$outfile'!", $target, $logfile);
+		}
+	}
+	// *** EMPTY OUTPUT FILE - END
+
 	// *** VERSION CONTROL - BEGIN
-	clearstatcache(); $outfile_size = is_file($outfile) ? filesize($outfile) : 0;
-	if ($outfile_size>0)
-	{
-		if ($_DEBUG) logEcho("*** DUMP [" . $outfile_size  . "]: " . $outfile, true);
-	}
-	else
-	{
-		logError("Empty file '$outfile'!", $target, $logfile);
-	}
 	if (empty($_ERRORS))
 	{
 		// Git repo create, backup configuration add and commit actions
