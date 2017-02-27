@@ -1,6 +1,6 @@
 <?php
 
-$_TEMPLATE["fortigate"] = array(
+$_TEMPLATE["fortinet.fgt"] = array(
 	"cmd" => "scp -q -oStrictHostKeyChecking=no $auth[1]@$address:fgt-config $outfile"
 	, "cases" => array(	
 		array(

@@ -40,7 +40,7 @@ $_EXITCODE = 0;
 set_time_limit(1800); // 30 Minutes
 
 $targets = splitlines(readlines($_TARGETS_FILE), ":");
-$auths = splitlines(readlines($_AUTHS_FILE), ":");
+$auths = splitlines(readlines($_AUTHS_FILE), " ");
 
 $outfile_datedir = date("Y/m/d");
 $outfile_datepfx = date("Ymd_his");
