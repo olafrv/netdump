@@ -408,12 +408,22 @@ foreach($targets as $target)
 	if (empty($_ERRORS))
 	{
 		// Git repo create, backup configuration add and commit actions
-		$cmd = "/bin/bash $_ROOTDIR/git/git.sh" 
-		. " " . escapeshellarg($gitfile_dir)
-		. " " . escapeshellarg($outfile)
-		. " " . escapeshellarg($gitfile)
-		. " " . escapeshellarg("$target_tag $outfile_size $outfile_datepfx")
-		. ($_DEBUG ? " 1" : "");
+		if ($output_file_sync=="sync")
+		{
+			$cmd = "/bin/bash $_ROOTDIR/git/git-sync.sh" 
+			. " " . escapeshellarg($gitfile_dir)
+			. " " . escapeshellarg($outfile)
+			. " " . escapeshellarg($gitfile)
+			. " " . escapeshellarg("$target_tag $outfile_size $outfile_datepfx")
+			. ($_DEBUG ? " 1" : "");
+		}
+		else
+		{
+			$cmd = "/bin/bash $_ROOTDIR/git/git-async.sh" 
+			. " " . escapeshellarg($gitfile_dir)
+			. " " . escapeshellarg("$target_tag $outfile_datepfx")
+			. ($_DEBUG ? " 1" : "");
+		}
 		if ($_DEBUG) logEcho("*** EXEC: " . $cmd);
 		exec($cmd, $cmd_output, $cmd_status); // Git actions
 		if ($cmd_status == 0)
