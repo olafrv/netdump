@@ -86,14 +86,14 @@ netdump [help]
 
 List targets from file '/etc/netdump/targets.conf':
 ```
-netdump show target [| more]
+netdump show target
 ```
 
 ### show auth
 
 List crendentials file '/etc/netdump/auths.conf':
 ```
-netdump show auth [| more]
+netdump show auth
 ```
 
 ### show dump
@@ -101,7 +101,7 @@ netdump show auth [| more]
 List dumps for 'target' (case sensitive) created 'days' 
 before/after (+/-) until today:
 ```
-netdump show dump target [+/-days] [| more]
+netdump show dump target [+/-days]
 ```
 
 ### show commit
@@ -109,19 +109,19 @@ netdump show dump target [+/-days] [| more]
 List commits made to git control version repository
 in '/var/lib/netdump/git' for 'target' (case sensitive):
 ```
-netdump show commit target [| more] 
+netdump show commit target 
 ```
 
 The output include: commit id, date and comment.
 
 Show the number of commits:
 ```
-netdump show commit target | wc -l
+netdump show commit target
 ```
 
 Show the last 10 commits (could be a greater number):
 ```
-netdump show commit target | head [-n 10]
+netdump show commit target 
 ```
 
 ### show diff
