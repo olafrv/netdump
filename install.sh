@@ -105,6 +105,7 @@ chmod 600 /etc/netdump/*
 chown -R netdump:netdump /etc/netdump
 chown -R netdump:netdump /var/lib/netdump
 chown -R netdump:netdump /opt/netdump
+chown -R root:root /opt/netdump/netdump
 chmod +x /opt/netdump/netdump/netdump.php
 
 # Apache modules for GitWeb
