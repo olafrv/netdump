@@ -9,8 +9,8 @@ then
 fi
 
 # Netdump default user
-addgroup --system netdump
-adduser --system --disabled-password --home /opt/netdump netdump --ingroup netdump --shell /bin/bash
+id -g netdump >/dev/null || addgroup --system netdump
+id -u netdump >/dev/null || adduser --system --disabled-password --home /opt/netdump netdump --ingroup netdump --shell /bin/bash
 
 # Create netdump installation directory
 [ -d /opt/netdump ] || mkdir /opt/netdump
@@ -43,7 +43,7 @@ apt-get -y install git
 [ -d /usr/share/php/PHPMailer ] || git clone --branch "v5.2.22" https://github.com/PHPMailer/PHPMailer.git /usr/share/php/PHPMailer
 
 # netdump as path command
-ln -s /opt/netdump/netdump/netdump.php /opt/netdump/netdump/netdump 
+[ -L /opt/netdump/netdump/netdump ] || ln -s /opt/netdump/netdump/netdump.php /opt/netdump/netdump/netdump 
 
 # We need find, sort, colordiff, more
 apt-get -y install coreutils findutils colordiff util-linux
@@ -99,13 +99,15 @@ pear install Console_Table
 [ -f /etc/netdump/targets.conf ] || cp /opt/netdump/netdump/conf/targets.conf /etc/netdump/targets.conf
 [ -f /etc/netdump/auths.conf ] || cp /opt/netdump/netdump/conf/auths.conf /etc/netdump/auths.conf
 [ -f /etc/netdump/mail.php ] || cp /opt/netdump/netdump/conf/mail.php /etc/netdump/mail.php
-chmod 600 /etc/netdump/*
 
 # Default permissions
 chown -R netdump:netdump /etc/netdump
+chmod 600 /etc/netdump/*
 chown -R netdump:netdump /var/lib/netdump
 chown -R netdump:netdump /opt/netdump
 chown -R root:root /opt/netdump/netdump
+find /opt/netdump/netdump -type d -exec chmod 755 {} \;
+find /opt/netdump/netdump -type f -exec chmod 644 {} \;
 chmod +x /opt/netdump/netdump/netdump.php
 
 # Apache modules for GitWeb
@@ -128,7 +130,7 @@ service apache2 restart
 apt-get install -y exim4
 
 # TFTP, FTP, SFTP, SCP (Common Directory)
-mkdir /opt/netdump/ftp
+[ -d /opt/netdump/ftp ] || mkdir /opt/netdump/ftp
 chown netdump:netdump /opt/netdump/ftp
 
 # TFTP for legacy devices (Insecure)
