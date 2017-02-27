@@ -92,6 +92,7 @@ $_TEMPLATE["cisco.ucs"] = array(
 	)
 	, "post-exec" => array(
 		"sleep 120" // UCS asynchronous job triggering
+		, "test -s '/opt/netdump/ftp/" . $target_tag . ".bin' " . escapeshellarg($outfile)
 		, "mv '/opt/netdump/ftp/" . $target_tag . ".bin' " . escapeshellarg($outfile)
 	)
 );

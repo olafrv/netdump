@@ -23,7 +23,8 @@ $_TEMPLATE["fortinet.fortios"] = array(
 		"rm -f '/opt/netdump/ftp/" . $target_tag . ".conf'" // Delete any previous backup
 	)
 	, "post-exec" => array(
-		"sleep 3" // UCS asynchronous job triggering
+		"sleep 3" // Fortinet FTP job preventive sleep
+		, "test -s '/opt/netdump/ftp/" . $target_tag . ".conf'"
 		, "mv '/opt/netdump/ftp/" . $target_tag . ".conf' " . escapeshellarg($outfile)
 	)
 );
