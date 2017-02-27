@@ -61,13 +61,13 @@ $_TEMPLATE["bluecoat"] = array(
 		, "rm -f '/opt/netdump/ftp/".$target_tag."-basic.cfg'"
 	)
 	, "post-exec" => array(
-		  "test -s '/opt/netdump/ftp/".$target_tag."-backup.cmd' "   . escapeshellarg($gitfile_dir."/")
+		  "test -s '/opt/netdump/ftp/".$target_tag."-backup.cmd'"
 		, "mv '/opt/netdump/ftp/".$target_tag."-backup.cmd' "   . escapeshellarg($gitfile_dir."/")
-		, "test -s '/opt/netdump/ftp/".$target_tag."-config.ldi' "   . escapeshellarg($gitfile_dir."/")
+		, "test -s '/opt/netdump/ftp/".$target_tag."-config.ldi'"
 		, "mv '/opt/netdump/ftp/".$target_tag."-config.ldi' "   . escapeshellarg($gitfile_dir."/")
-		, "test -s '/opt/netdump/ftp/".$target_tag."-settings.cfg' " . escapeshellarg($gitfile_dir."/")
+		, "test -s '/opt/netdump/ftp/".$target_tag."-settings.cfg'"
 		, "mv '/opt/netdump/ftp/".$target_tag."-settings.cfg' " . escapeshellarg($gitfile_dir."/")
-		, "test -s '/opt/netdump/ftp/".$target_tag."-basic.cfg' "    . escapeshellarg($gitfile_dir."/")
+		, "test -s '/opt/netdump/ftp/".$target_tag."-basic.cfg'"
 		, "mv '/opt/netdump/ftp/".$target_tag."-basic.cfg' "    . escapeshellarg($gitfile_dir."/")
 	)
 );
