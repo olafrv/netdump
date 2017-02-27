@@ -68,13 +68,13 @@ if (isset($argv[1]))
 				{
 					case "target":
 						// Show targets
-						echo tabulate($targets, array("Template", "Address", "Tag", "Auth"));
+						echo tabulate($targets);
 						exit(0);
 						break;
 
 					case "auth";
 						// Show authentication credential list
-						echo tabulate($auths, array("Auth", "Param1", "Param2", "Parm3"));
+						echo tabulate($auths);
 						exit(0);
 						break;
 
