@@ -49,6 +49,7 @@ function splitlines($lines, $delimiter){
 function tabulate($array, $headers = NULL){
 	$output_table = new Console_Table();
 	$output_table->setBorder("   "); // +-|
+	$output_table->setBorderVisibility(array("top"=>false, "bottom"=>false, "inner"=>false));
 	if (!is_null($headers)) $output_table->setHeaders($headers);
 	foreach($array as $row) $output_table->addRow($row);
 	return $output_table->getTable();
