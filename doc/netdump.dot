@@ -19,13 +19,13 @@ digraph template {
   expect -> match [label="{case}"]
   match -> hard_error [label="unknown\n(answer)"]
 
-	result -> soft_error [label="empty\n{outfile}(sync)"] 
+	result -> soft_error [label="empty\n{outfile}\n(sync)"] 
 
 	soft_error -> expect [label="retry\n{cmd}"]
 	soft_error -> fatal_error [label="retries>3"]
 	hard_error -> fatal_error [label="is_a"]
 
-	expect -> result [label="eof"]
+	expect -> result [label="EOF"]
 	
 	match -> answer [label="skip"]
 	match -> answer [label="chr"]
