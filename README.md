@@ -116,7 +116,7 @@ This are the most important directories to backup outside from netdump server:
 
 # Templates
 
-![Netdump Workflow](https://raw.githubusercontent.com/olafrv/netdump/master/conf/netdump.png "Netdump Workflow")
+![Netdump Workflow](https://raw.githubusercontent.com/olafrv/netdump/master/doc/netdump.png "Netdump Workflow")
 
 # Commands (CLI)
 
