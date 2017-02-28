@@ -51,9 +51,9 @@ Dumps versions are saved in:
 
 Finally, some manual configuration are REQUIRED:
 
-* Look at the **Security**, **Logging** and **Scheduled Tasks**.
+* Look at the **Security**, **Logging**, **Scheduled Tasks** and **Backup** sections bellow.
 
-# Security Considerations
+# Security
 
 * Please configure iptables to protect FTP, SFTP, SCP, SSH and TFTP access to netdump server.
 * Protect unauthorized access to GitWeb using [Apache Auth Module](http://httpd.apache.org/docs/2.0/mod/mod_auth.html)
@@ -61,6 +61,62 @@ Finally, some manual configuration are REQUIRED:
 **WARNING**: By default, it is installed LDAP / Active Directory authentication 
 [conf/gitweb.conf](https://github.com/olafrv/netdump/tree/master/conf) you can
 comment the lines if you dont need them or prefer another security measure.
+
+# Scheduled Tasks (Cron Jobs)
+
+* An example of crontab is here [conf/crontab](https://github.com/olafrv/netdump/tree/master/conf)
+* Cron jobs should run with **netdump** user and edited as follows:
+```
+sudo su - netdump
+crontab -e
+```
+
+* Cronjobs are:
+  * Created on netdump users session (crontab -e)
+  * Output are delivered locally by **exim4** MTA (/var/spool/mail/netdump) 
+  * Cronjobs mails can be read with *mail* client command from netdump user session
+
+# Logging
+
+* Unfiltered expect output are saved in: */var/lib/netdump/logs*
+* Netdump command output are saved in: */var/log/syslog*
+
+**WARNING: Increase retention of syslog and apache logs** 
+
+**/etc/logrotate.d/rsyslog**
+```
+/var/log/syslog
+{
+  rotate 52
+  weekly
+```
+**/etc/logrotate.d/apache2**
+```
+/var/log/apache2/*.log {
+        weekly
+        missingok
+        rotate 52
+```
+
+Then restart the service:
+```
+service restart rsyslog
+```
+
+# Backup (Global)
+
+This are the most important directories to backup outside from netdump server:
+
+* /etc 
+  * */etc/apache2*
+  * */etc/netdump*
+* /opt/netdump
+* /var/lib/netdump
+
+
+# Templates
+
+![Netdump Workflow](https://raw.githubusercontent.com/olafrv/netdump/master/conf/netdump.png "Netdump Workflow")
 
 # Commands (CLI)
 
@@ -167,54 +223,4 @@ netdump clone target destination [commit]
 **destination:** is directory (e.g. /tmp).
 **commit:** if specified should be taked from the output of the **commit command**.
 
-# Scheduled Tasks (Cron Jobs)
-
-* An example of crontab is here [conf/crontab](https://github.com/olafrv/netdump/tree/master/conf)
-* Cron jobs should run with **netdump** user and edited as follows:
-```
-sudo su - netdump
-crontab -e
-```
-
-* Cronjobs are:
-  * Created on netdump users session (crontab -e)
-  * Output are delivered locally by **exim4** MTA (/var/spool/mail/netdump) 
-  * Cronjobs mails can be read with *mail* client command from netdump user session
-
-# Backup (Global)
-
-This are the most important directories to backup outside from netdump server:
-
-* /etc 
-  * */etc/apache2*
-  * */etc/netdump*
-* /opt/netdump
-* /var/lib/netdump
-
-# Logging
-
-* Unfiltered expect output are saved in: */var/lib/netdump/logs*
-* Netdump command output are saved in: */var/log/syslog*
-
-**WARNING: Increase retention of syslog and apache logs** 
-
-**/etc/logrotate.d/rsyslog**
-```
-/var/log/syslog
-{
-  rotate 52
-  weekly
-```
-**/etc/logrotate.d/apache2**
-```
-/var/log/apache2/*.log {
-        weekly
-        missingok
-        rotate 52
-```
-
-Then restart the service:
-```
-service restart rsyslog
-```
 
