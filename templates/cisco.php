@@ -9,8 +9,7 @@ $_TEMPLATE["cisco"] = array(
 	"cmd" => "ssh -q -oStrictHostKeyChecking=no $auth[1]@$address",
 	"cases" => array(
 		array(
-			array(".*@.*'s [Pp]assword:", "sshpassword", EXP_REGEXP),
-			array("^[Pp]assword:", "password", EXP_REGEXP),
+			array("[.*@.*'s ]*[Pp]assword:", "sshpassword", EXP_REGEXP),
 			array("^.*[-_\.0-9A-Za-z]+#$", "prompt", EXP_REGEXP, "jump")
 		),
 		array(
@@ -25,7 +24,6 @@ $_TEMPLATE["cisco"] = array(
 	"answers" => array(
 		array(
 			array("sshpassword", "$auth[2]\n", 3),
-			array("password", "$auth[2]\n", 1),
 			array("prompt", "show run\n", 1)
 		),
 		array(
