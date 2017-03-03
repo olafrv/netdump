@@ -2,10 +2,13 @@
 
 // Bluecoat PacketShaper
 //
+// Version: PacketShaper v8.6.5g1 2011-03-23
+// Product: PacketShaper 12000
+//
 // https://bto.bluecoat.com/packetguide/8.7/nav/tasks/administrative/backup-configuration.htm
 // https://bto.bluecoat.com/packetguide/8.7/info/automate-backups.htm
 
-$_TEMPLATE["bluecoat"] = array(
+$_TEMPLATE["bluecoat.8.6"] = array(
 	"cmd" => "ssh -q -oStrictHostKeyChecking=no " . $auth[1] . "@" . $address
 	, "output" => "async"
 	, "cases" => array(
