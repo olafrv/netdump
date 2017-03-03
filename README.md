@@ -148,7 +148,7 @@ netdump show target
 
 **Fields:** Template, Target Tag, IP Address / Hostname, Authentication Tag
 
-### show target
+### show targetbytpl
 
 List targets from file '/etc/netdump/targets.conf' filtered by template:
 ```
