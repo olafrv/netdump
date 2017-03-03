@@ -6,7 +6,7 @@ $_TEMPLATE["cisco.telnet"] = array(
 		array(
 			array("^[Uu]sername:", "user", EXP_REGEXP),
 			array("^[Pp]assword:", "password", EXP_REGEXP),
-			array("^.*[-_\.0-9A-Za-z]+#", "prompt", EXP_REGEXP, "jump"),
+			array("^.*[-_\.0-9A-Za-z]+#$", "prompt", EXP_REGEXP, "jump"),
 			array("*\n", "skip", EXP_GLOB) // Garbage output
 		),
 		array(
