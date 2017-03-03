@@ -7,11 +7,11 @@ $_TEMPLATE["cisco.telnet"] = array(
 			array("^[Uu]sername:", "user", EXP_REGEXP),
 			array("^[Pp]assword:", "password", EXP_REGEXP),
 			array("^.*[-_\.0-9A-Za-z]+#", "prompt", EXP_REGEXP, "jump"),
-			array("*\n", "skip", EXP_GLOB)
+			array("*\n", "skip", EXP_GLOB) // Garbage output
 		),
 		array(
-			array("show run", "show run", EXP_GLOB),
-			array("Building configuration...", "skip", EXP_GLOB),
+			array("show run", "show run", EXP_GLOB), // Mirror output from answers
+			array("Building configuration...", "skip", EXP_GLOB), // Mirror output from answers
 			array("^[\010]+[\x20h]+[\010]+", "chr", EXP_REGEXP), // Backspace-Space-Backspace
 			array("*\n", "save", EXP_GLOB),
 			array("*--More--*", "more", EXP_GLOB),
