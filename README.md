@@ -145,6 +145,15 @@ List targets from file '/etc/netdump/targets.conf':
 netdump show target
 ```
 
+**Fields:** Template, Target Tag, IP Address / Hostname, Authentication Tag
+
+### show target
+
+List targets from file '/etc/netdump/targets.conf' filtered by template:
+```
+netdump show targetbytpl <template>
+```
+
 ### show auth
 
 List crendentials file '/etc/netdump/auths.conf':
@@ -157,7 +166,7 @@ netdump show auth
 List dumps for 'target' (case sensitive) created 'days' 
 before/after (+/-) until today:
 ```
-netdump show dump target [+/-days]
+netdump show dump <target> [+/-days]
 ```
 
 ### show commit
@@ -165,19 +174,19 @@ netdump show dump target [+/-days]
 List commits made to git control version repository
 in '/var/lib/netdump/git' for 'target' (case sensitive):
 ```
-netdump show commit target 
+netdump show commit <target> 
 ```
 
 The output include: commit id, date and comment.
 
 Show the number of commits:
 ```
-netdump show commit target
+netdump show commit <target>
 ```
 
 Show the last 10 commits (could be a greater number):
 ```
-netdump show commit target 
+netdump show commit <target> 
 ```
 
 ### show diff
@@ -185,7 +194,7 @@ netdump show commit target
 List all changes for all commits made to git control
 version repository for 'target' (case sensitive):
 ```
-netdump show diff target [commit1 commit2]
+netdump show diff <target> [commit1 commit2]
 ```
 
 The commit1 and commit2 allow to filter the changes
@@ -217,7 +226,7 @@ netdump [debug|debugmail] [tag]
 
 Make a copy of the last or a specific dump commited version of a target:
 ```
-netdump clone target destination [commit]
+netdump clone target <destination> [commit]
 ```
 
 **destination:** is directory (e.g. /tmp).

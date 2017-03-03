@@ -65,6 +65,16 @@ function tabget($array, $index, $value){
 	}
 	return $found;
 }
+
+function tabgetall($array, $index, $value){
+	$found = array();
+	foreach($array as $row){
+		if ($row[$index] == $value){
+			$found[] = $row;
+		}
+	}
+	return $found;
+}
 				
 function help(){
 	global $_ROOTDIR;

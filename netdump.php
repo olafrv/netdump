@@ -72,6 +72,12 @@ if (isset($argv[1]))
 						exit(0);
 						break;
 
+					case "targetbytpl":
+						// Show targets filtered by template
+						echo tabulate(tabgetall($targets, 0, $argv[3]));
+						exit(0);
+						break;
+
 					case "auth";
 						// Show authentication credential list
 						echo tabulate($auths);
