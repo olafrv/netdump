@@ -17,6 +17,7 @@ It is not the [netdump kernel module, client or server utility](https://linux.di
   * Cisco Nexus OS (SSH/Telnet).
   * Fortigate FortiOS (SSH trigger FTP/TFTP copy).
   * Foundry ServerIron (Telnet).
+  * Netgear Switches (Telnet).
 * Asisted version control with Git repositories per device.
 * Friendly Web browsing of backups via secured GitWeb interface.
 * SSH client param included to support old devices (Weak protocols).
