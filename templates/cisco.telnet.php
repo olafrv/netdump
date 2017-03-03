@@ -10,8 +10,8 @@ $_TEMPLATE["cisco.telnet"] = array(
 			array("*\n", "skip", EXP_GLOB) // Garbage output
 		),
 		array(
-			array("show run", "show run", EXP_GLOB), // Mirror output from answers
-			array("Building configuration...", "skip", EXP_GLOB), // Mirror output from answers
+			array("show run", "show run", EXP_GLOB), // Mirror output 'show run'
+			array("Building configuration...", "skip", EXP_GLOB), // Garbage
 			array("^[\010]+[\x20h]+[\010]+", "chr", EXP_REGEXP), // Backspace-Space-Backspace
 			array("*\n", "save", EXP_GLOB),
 			array("*--More--*", "more", EXP_GLOB),
