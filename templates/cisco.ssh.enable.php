@@ -15,8 +15,8 @@ $_TEMPLATE["cisco.ssh.enable"] = array(
 			array("^.*[-_\.0-9A-Za-z]+#$", "prompt", EXP_REGEXP, "jump")
 		),
 		array(
-			array("show run", "show run", EXP_GLOB),
-			array("Building configuration...", "skip", EXP_GLOB),
+			array("show run", "show run", EXP_GLOB),  // Mirror output 'show run'
+			array("Building configuration...", "skip", EXP_GLOB), // Garbage
 			array("^[\010]+[\x20h]+[\010]+", "chr", EXP_REGEXP), // Backspace-Space-Backspace
 			array("*\n", "save", EXP_GLOB),
 			array("*--More--*", "more", EXP_GLOB),
