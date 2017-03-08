@@ -6,6 +6,7 @@ $_TEMPLATE["foundry"] = array(
 	"cmd" => "telnet $address",
 	"cases" => array(
 		array(
+			array("Name:", "username", EXP_GLOB),
 			array("Password:", "password", EXP_GLOB),
 			array("*>", "enable", EXP_GLOB),
 			array("*#", "prompt", EXP_GLOB, "jump"),
@@ -19,9 +20,10 @@ $_TEMPLATE["foundry"] = array(
 	),
 	"answers" => array(
 		array(
-			array("password", "$auth[1]\r\n", 1), // Telnet password
+			array("username", "$auth[1]\r\n", 1), // Login Name
+			array("password", "$auth[2]\r\n", 1), // Login Password
 			array("enable", "enable\r\n", 1),
-			array("password", "$auth[2]\r\n", 1), // Enabled password
+			array("password", "$auth[3]\r\n", 1), // Enabled password
 			array("prompt", "show configuration\r\n", 1)
 		),
 		array(
