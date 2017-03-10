@@ -1,13 +1,13 @@
 digraph template {
 
-	pre_exec -> expect [label="{cmd,cases,answers}"]
+	pre_exec -> expect [label="cmd,\ncases,\nanswers"]
 	pre_exec -> fatal_error [label="fail"]
 
-	result -> post_exec [label="@default"] 
+	result -> post_exec [label="test,cp,\nmv..."] 
 
-	post_exec -> commit [label="{outfile}"]
-	commit -> processed [label="sucess!"]
-  commit -> fatal_error [label="fail"]
+	post_exec -> commit [label="success"]
+	commit -> processed [label="success"]
+	commit -> fatal_error [label="fail"]
 
 	post_exec -> fatal_error [label="fail"]
 
@@ -16,30 +16,30 @@ digraph template {
 
 	expect -> soft_error [label="timeout"]
 
-  expect -> match [label="{case}"]
-  match -> hard_error [label="unknown\n(answer)"]
+	expect -> case [label="match"]
+	case -> hard_error [label="unknown"]
 
-	result -> soft_error [label="empty\n{outfile}\n(sync)"] 
+	result -> soft_error [label="empty\n(sync)"] 
 
-	soft_error -> expect [label="retry\n{cmd}"]
+	soft_error -> expect [label="retry\n(cmd)"]
 	soft_error -> fatal_error [label="retries>3"]
 	hard_error -> fatal_error [label="is_a"]
 
 	expect -> result [label="EOF"]
 	
-	match -> answer [label="skip"]
-	match -> answer [label="chr"]
-	match -> answer [label="save\n{outfile}"]
-	match -> answer [label="<other>"]
+	case -> answer [label="skip,\nchr,\nsave..."]
 
-	answer -> expect [label="jump\n{cases}"]
-  answer -> expect [label="@default"]
-  answer -> result[label="finish"]
+        answer -> action [label="action:=answer|case"]
+
+	action -> expect [label="jump"]
+        action -> case [label="continue"]
+	action -> result[label="finish"]
 	
 	pre_exec[style=filled,fillcolor=orange,fontcolor=black]
 	post_exec[style=filled,fillcolor=orange,fontcolor=black]
 	expect[style=filled,fillcolor=blue,fontcolor=white]
-	match[style=filled,fillcolor=blue,fontcolor=white]
+	action[style=filled,fillcolor=blue,fontcolor=white]
+	case[style=filled,fillcolor=blue,fontcolor=white]
 	answer[style=filled,fillcolor=blue,fontcolor=white]
 	result[style=filled,fillcolor=blue,fontcolor=white]
 	hard_error[style=filled,fillcolor=red,fontcolor=white]
