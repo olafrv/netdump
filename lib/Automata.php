@@ -33,11 +33,11 @@ class Automata {
 			if (ctype_print($char)){
 			 $chars[] = $char;
 			}else{
-			 $chars[] = 'chr(' . ord($char) . ')';
+			 $chars[] = ' chr(' . ord($char) . ') ';
 			}
 		}
 		if ($to_string){
-			return implode(" ", $chars);
+			return implode("", $chars);
 		}else{
 			return $chars;
 		}
@@ -59,19 +59,22 @@ class Automata {
 				$casename = expect_expectl($stream, $cases, $matchs); // group of cases
 				$matched = isset($matchs[0]) ? $matchs[0] : ""; // whole input which matched the case
 				$case = tabget($cases, 1, $casename);
+
+				$answered = false;
+
+				// First reserved answers
 				if ($casename == "chr")
 				{ 
 					// Print characters ASCII codes & skip
 					$debug[] = ["chr ->' ", $this->strgetchr($matched) . "'\n"];
-					continue;
+					$answered = true;
 				}
-				if ($casename == "skip")
+				else if ($casename == "skip")
 				{ 
-					// Always skip
 					$debug[] = ["skip -> '", $matched . "'\n"];	
-					continue;
+					$answered = true;
 				}
-				if ($casename == "save")
+				else if ($casename == "save")
 				{ 
 					// Save input to file
 					$written = 0;
@@ -84,13 +87,26 @@ class Automata {
 					{
 						$debug[] = ["save [$written] -> ", "skipped because no output file defined!\n"];
 					}
-					continue;	
+					$answered = true;
 				}
-				$answered = false;
-				for($i=0; $i<count($answers); $i++)
+		
+				if ($answered)
+				{
+					// Case has a jump or finish action?
+					if (!(isset($case[3]) && in_array(isset($case[3]), array("jump", "finish"))))
+					{
+						continue; // If not just continue!
+					}
+				}
+
+				// Second, custom answers (if not previously answered!)
+				$custom_answer = null;
+				for($i=0; !$answered && ($i<count($answers)); $i++)
 				{
 					if ($answers[$i][0] == $casename)
 					{
+						$custom_answer = $answers[$i]; // Needed later for answer action!
+
 						// When -1 means this answer can be used always
 						if ($answers[$i][2] == 0) continue; // This answer can't be used, look for another...
 						if ($answers[$i][2] > 0) --$answers[$i][2]; // Use this answer again (n-times)
@@ -105,19 +121,50 @@ class Automata {
 							$debug[] = ["answer <- ", $answers[$i][1] . "\n"];
 						}
 						$answered = true;
-						break;
 					}
 				}
+
 				if ($answered)
 				{	
-					// Jump to next group of cases or finish?
-					if (isset($case[3]) && in_array(isset($case[3]), array("jump", "finish")))
+					// Answer action?
+					if (!is_null($custom_answer) && isset($custom_answer[3]))
 					{
-						$debug[] = [$case[3]];
-						if ($case[3] == "jump"){
-							break 1; // Continue with the next group of cases (break while)
-						}else{
-							break 2; // Do not process more group of cases (break for)
+						if (in_array(strtolower($custom_answer[3]), array("jump", "finish")))
+						{
+							$debug[] = [ "last answer {$custom_answer[1]} -> action:"
+														. strtolower($custom_answer[3]) . "\n" ];
+							if (strtolower($custom_answer[3]) == "jump"){
+								break 1; // Continue with the next group of cases (break while)
+							}else{
+								break 2; // Do not process more group of cases (break for)
+							}
+						}
+						else
+						{	
+							$casename = "";
+							$debug[] = ["unknown 'answer' action '$custom_answer[3]'", ""];				
+							break 2; // Abort to show an error!
+						}
+					}
+
+					// Case action?
+					if (isset($case[3]))
+					{ 
+						if (in_array(strtolower($case[3]), array("jump", "finish")))
+						{
+							$debug[] = [ "last case {$casename} -> action:"
+														. strtolower($case[3])."\n" ];
+							if (strtolower($case[3]) == "jump"){
+								break 1; // Continue with the next group of cases (break while)
+							}else{
+								break 2; // Do not process more group of cases (break for)
+							}
+						}
+						else
+						{
+							$casename = "";
+							$debug[] = ["unknown 'case' action '$case[3]'", ""];				
+							break 2; // Abort to show an error!
 						}
 					}
 				}
@@ -136,7 +183,7 @@ class Automata {
 							$debug[] = ["fullbuffer"];
 							break;
 						default:
-							$debug[] = ["unknown case '$casename' -> ", $this->strgetchr($matched)];				
+							$debug[] = ["unknown error on case '$casename' -> ", $this->strgetchr($matched)];				
 							break;
 					}
 					break 2; // Do not process more group of cases (break for)
