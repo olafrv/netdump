@@ -29,10 +29,10 @@ digraph template {
 	
 	case -> answer [label="skip,\nchr,\nsave..."]
 
-        answer -> action [label="action:=answer|case"]
+  answer -> action [label="action:=answer|case"]
 
 	action -> expect [label="jump"]
-        action -> case [label="continue"]
+  action -> case [label="continue"]
 	action -> result[label="finish"]
 	
 	pre_exec[style=filled,fillcolor=orange,fontcolor=black]
