@@ -94,7 +94,8 @@ if (isset($argv[1]))
 								"find '$_OUTFILE_ROOTDIR' -type f -name " 
 								. escapeshellarg('*' . $argv[3]. '*.conf') . " -mtime $backtime" 
 								. " -printf \"%TY-%Tm-%Td %TH:%TM \t%k KB\t%p\n\" | sort -r\n";
-							exec($cmd, $cmd_output, $cmd_status); // Git actions
+							$cmd_output = array(); $cmd_status = -1;
+							exec($cmd, $cmd_output, $cmd_status); 
 							logEcho(implode("\n", $cmd_output));
 							exit($cmd_status);
 						}
@@ -110,6 +111,7 @@ if (isset($argv[1]))
 							$gitfile_dir = $_GITFILE_ROOTDIR . "/" . $argv[3];
 							$cmd = "/bin/bash $_ROOTDIR/git/git-log.sh" . " " . escapeshellarg($gitfile_dir);
 							if ($_DEBUG) logEcho("*** EXEC: " . $cmd, true);
+							$cmd_output = array(); $cmd_status = -1;
 							exec($cmd, $cmd_output, $cmd_status); // Git actions
 							logEcho(implode("\n", $cmd_output));
 							exit($cmd_status);
@@ -130,6 +132,7 @@ if (isset($argv[1]))
 								$cmd .= " " . escapeshellarg($argv[4] . ".." . $argv[5]);
 							}
 							if ($_DEBUG) logEcho("EXEC: " . $cmd, true);
+							$cmd_output = array(); $cmd_status = -1;
 							exec($cmd, $cmd_output, $cmd_status); // Git actions
 							logEcho(implode("\n", $cmd_output));
 							exit($cmd_status);
@@ -159,6 +162,7 @@ if (isset($argv[1]))
 				$cmd .= " " . escapeshellarg($argv[3] . "/" . $argv[2]);
 				$cmd .= " " . (isset($argv[4]) ? escapeshellarg($argv[4]) : "HEAD");
 				if ($_DEBUG) logEcho("EXEC: " . $cmd, true);
+				$cmd_output = array(); $cmd_status = -1;
 				exec($cmd, $cmd_output, $cmd_status); // Git actions
 				if ($_DEBUG) logEcho(implode("\n", $cmd_output));
 				exit($cmd_status);
@@ -313,6 +317,7 @@ foreach($targets as $target)
 		foreach($cmds as $cmd)
 		{
 			if ($_DEBUG) logEcho("*** PRE-EXEC: " . $cmd, true);
+			$cmd_output = array(); $cmd_status = -1;
 			exec($cmd, $cmd_output, $cmd_status);
 			if ($_DEBUG) logEcho(implode("\n", $cmd_output));
 			$pre_exec = $pre_exec &&  ($cmd_status==0);
@@ -412,6 +417,7 @@ foreach($targets as $target)
 		foreach($cmds as $cmd)
 		{
 			if ($_DEBUG) logEcho("*** POST-EXEC: " . $cmd, true);
+			$cmd_output = array(); $cmd_status = -1;
 			exec($cmd, $cmd_output, $cmd_status);
 			if ($_DEBUG) logEcho(implode("\n", $cmd_output));
 			$post_exec = $post_exec & ($cmd_status==0);
@@ -459,6 +465,7 @@ foreach($targets as $target)
 		}
 
 		if ($_DEBUG) logEcho("*** EXEC: " . $cmd);
+		$cmd_output = array(); $cmd_status = -1;
 		exec($cmd, $cmd_output, $cmd_status); // Git actions
 
 		if ($cmd_status == 0)
@@ -472,11 +479,11 @@ foreach($targets as $target)
 			{
 				if (empty($cmd_output))
 				{
-					logEcho("*** UNCHANGED: Target '$target_tag'.", true);
+					logEcho("*** Target '$target_tag' not changed.", true);
 				}
 				else
 				{
-					foreach(array_slice($cmd_output, -2, 2) as $msg) logEcho("*** COMMIT:" . $msg, true);
+					foreach(array_slice($cmd_output, -2, 2) as $msg) logEcho("*** Git -> " . $msg, true);
 				}
 			}
 		}
@@ -487,7 +494,7 @@ foreach($targets as $target)
 	}
 	else
 	{
-		logEcho("*** UNCOMMITED: Target '$target_tag' due to " . count(getTargetErrors($target_tag)) . " previous errors!", true);	
+		logEcho("*** Target '$target_tag' NOT commited due to " . count(getTargetErrors($target_tag)) . " previous errors!", true);	
 	}
 	// *** VERSION CONTROL - END
 
