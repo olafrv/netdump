@@ -332,9 +332,10 @@ foreach($targets as $target)
 	$retries_max = 3;
 	$retries_sleep = 5;
 
+	$result_debug = array();
 	while(++$retries <= $retries_max)
 	{
-		$debug = array();
+		$result_debug = array();
 
 		if ($retries>1)
 		{
@@ -347,15 +348,15 @@ foreach($targets as $target)
 		if ($output_file_sync=="async")
 		{
 			if ($_DEBUG) logEcho("*** DUMP: Asynchronous should be managed by 'post-exec'", true);
-			$result = $automata->expect($cmd, $cases_groups, $answers_groups, NULL, $debug);
+			$result = $automata->expect($cmd, $cases_groups, $answers_groups, NULL, $result_debug);
 		}
 		else
 		{
 			if ($_DEBUG) logEcho("*** DUMP: Created by expect (Synchronous)", true);
-			$result = $automata->expect($cmd, $cases_groups, $answers_groups, $outfile, $debug);
+			$result = $automata->expect($cmd, $cases_groups, $answers_groups, $outfile, $result_debug);
 		}
 
-		if ($_DEBUG) foreach($debug as $msg) if (!empty($msg[0])) logEcho($msg[0] . (isset($msg[1]) ? $msg[1] : "")); // Expect debug messages
+		if ($_DEBUG) foreach($result_debug as $msg) if (!empty($msg[0])) logEcho($msg[0] . (isset($msg[1]) ? $msg[1] : "")); // Expect debug messages
 
 		if ($retries < $retries_max)
 		{ 
@@ -379,6 +380,9 @@ foreach($targets as $target)
 
 	switch($result)
 	{
+		case AUTOMATA_FINISHED:
+			if ($_DEBUG) logEcho("*** FINISHED"); // As programmed in cases so it's ok
+			break;
 		case AUTOMATA_EOF:
 			$msg = "Error unhandle EOF!"; // EOF received but not handled
 			logError($msg, $target, $logfile);
@@ -390,9 +394,6 @@ foreach($targets as $target)
 		case AUTOMATA_FULLBUFFER:
 			$msg = "Error buffer full!"; // Buffer full? => Raise expect buffer
 			logError($msg, $target, $logfile);
-			break;
-		case AUTOMATA_FINISHED:
-			if ($_DEBUG) logEcho("*** FINISHED"); // As programmed in cases so it's ok
 			break;
 		default:
 			$msg = "Unknown case error result. Please debug!"; // Unknown error!
@@ -459,7 +460,14 @@ foreach($targets as $target)
 		if ($cmd_status == 0)
 		{
 			file_put_contents($gitfile_dir . "/.git/description", "$target_tag"); // Update git repo name
-			if ($_DEBUG) logEcho(implode("\n", $cmd_output));
+			if ($_DEBUG)
+			{
+				logEcho(implode("\n", $cmd_output));
+			}
+			else
+			{
+				$msg = end($cmd_output); logEcho("*** COMMIT:" . $msg);
+			}
 		}
 		else
 		{

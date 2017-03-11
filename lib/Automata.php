@@ -132,11 +132,10 @@ class Automata {
 					// Answer action?
 					if (!is_null($custom_answer) && isset($custom_answer[3]))
 					{
-						if (in_array(strtolower($custom_answer[3]), array("jump", "finish")))
+						if (in_array($custom_answer[3], array("jump", "finish")))
 						{
-							$debug[] = [ "last answer {$custom_answer[1]} -> action:"
-														. strtolower($custom_answer[3]) . "\n" ];
-							if (strtolower($custom_answer[3]) == "jump"){
+							$debug[] = [ "answer ($custom_answer[1]) action -> " . $custom_answer[3] . "\n" ];
+							if ($custom_answer[3] == "jump"){
 								break 1; // Continue with the next group of cases (break while)
 							}else{
 								$finished = true;
@@ -154,11 +153,10 @@ class Automata {
 					// Case action?
 					if (isset($case[3]))
 					{ 
-						if (in_array(strtolower($case[3]), array("jump", "finish")))
+						if (in_array($case[3], array("jump", "finish")))
 						{
-							$debug[] = [ "last case {$casename} -> action:"
-														. strtolower($case[3])."\n" ];
-							if (strtolower($case[3]) == "jump"){
+							$debug[] = [ "case ($case[1]) action -> " . $case[3] . "\n" ];
+							if ($case[3] == "jump"){
 								break 1; // Continue with the next group of cases (break while)
 							}else{
 								$finished = true;
@@ -188,7 +186,7 @@ class Automata {
 							$debug[] = ["fullbuffer"];
 							break;
 						default:
-							$debug[] = ["unknown error on case '$casename' -> ", $this->strgetchr($matched)];				
+							$debug[] = ["unknown error for case '$casename' -> ", $this->strgetchr($matched)];				
 							break;
 					}
 					break 2; // Do not process more group of cases (break for)
