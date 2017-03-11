@@ -91,8 +91,9 @@ function strvarsub($str, $vars){
 function logEcho($msg, $syslog = false)
 {
 	global $_REPORT;
-	$_REPORT[] = $msg;
-	echo "*** " .  getTimeString() . " " . $msg . "\n";
+	$msgTS = "*** " .  getTimeString() . " " . $msg;
+	echo $msgTS . "\n";
+	$_REPORT[] = $msgTS;
 	if ($syslog) logToSyslog(str_replace("\n", " ", $msg));
 }
 
