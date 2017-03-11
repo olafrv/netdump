@@ -58,7 +58,7 @@ function tabulate($array, $headers = NULL){
 function tabget($array, $index, $value){
 	$found = NULL;
 	foreach($array as $row){
-		if ($row[$index] == $value){
+		if (isset($row[$index]) && $row[$index] == $value){
 			$found = $row;
 			break;
 		}
