@@ -274,7 +274,7 @@ foreach($targets as $target)
 			continue;
 		}
 		// Check mandatory variables in templates
-		$template_variables = array("cmd","output","cases","answers");
+		$template_variables = array("cmd","cases","answers");
 		$template_variables_undefined = array();
 		foreach($template_variables as $template_variable)
 			if (!isset($_TEMPLATE[$template][$template_variable])) 
@@ -380,7 +380,8 @@ foreach($targets as $target)
 	switch($result)
 	{
 		case AUTOMATA_EOF:
-			if ($_DEBUG) logEcho("*** EOF"); // End of file (stream)
+			$msg = "Error unhandle EOF!"; // EOF received but not handled
+			logError($msg, $target, $logfile);
 			break;
 		case AUTOMATA_TIMEOUT:
 			$msg = "Error timeout!"; // Connection or expect timeout
