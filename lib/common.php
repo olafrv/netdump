@@ -98,18 +98,25 @@ function logEcho($msg, $syslog = false)
 }
 
 function logError($msg, $target = NULL, $logfile = NULL){
-	global $_ERRORS;
+	global $_GLOBAL_ERRORS; // 4 fields rows
+	global $_TARGET_ERRORS; // 4 fields rows
 	$msg = "*** ERROR: *** " . $msg;
 	if (!is_null($target)){
 		list($template, $target_tag, $address, $auth_tag) = $target;
-		$_ERRORS[] = array($target_tag, $address, substr($msg,0,20), (!is_null($logfile) ? basename($logfile) : ""));
+		$_TARGET_ERRORS[$target_tag][] = array($target_tag, $address, $msg, (!is_null($logfile) ? basename($logfile) : ""));
 	}else{
-		$_ERRORS[] = array("*netdump*", "localhost", $msg, "syslog");
+		$_GLOBAL_ERRORS[] = array("*netdump*", "localhost", $msg, "syslog");
 	}
 	echo "*** " . getTimeString() . " " . $msg . "\n";
 	logToSyslog(str_replace("\n", " ", $msg));
 }
 
+function getTargetErrors($target_tag)
+{
+	global $_TARGET_ERRORS;
+	return isset($_TARGET_ERRORS[$target_tag]) ? $_TARGET_ERRORS[$target_tag] : array();
+}
+	
 function getTimeString()
 {
 	$mt = microtime(true);

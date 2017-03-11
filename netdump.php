@@ -34,7 +34,8 @@ $_OUTFILE_ROOTDIR = "/var/lib/netdump/dumps";
 $_GITFILE_ROOTDIR = "/var/lib/netdump/git";
 $_LOGFILE_ROOTDIR = "/var/lib/netdump/logs";
 $_TEMPLATE_ROOTDIR = $_ROOTDIR . "/templates";
-$_ERRORS = array();
+$_GLOBAL_ERRORS = array();
+$_TARGET_ERRORS = array();
 $_EXITCODE = 0;
 
 set_time_limit(1800); // 30 Minutes
@@ -400,7 +401,7 @@ foreach($targets as $target)
 			logError($msg, $target, $logfile);
 			break;
 	}
-	if ($_DEBUG && !is_null(tabget($_ERRORS, 1, $target_tag))) logEcho("*** EXPECT LOG: $logfile");
+	if ($_DEBUG && !empty(getTargetErrors($target_tag))) logEcho("*** EXPECT LOG: $logfile");
 	// *** AUTOMATA - END
 
 	// *** POST-EXEC - BEGIN
@@ -423,7 +424,8 @@ foreach($targets as $target)
 	// *** EMPTY OUTPUT FILE - BEGIN
 	if ($output_file_sync=="sync")
 	{
-		clearstatcache(); $outfile_size = is_file($outfile) ? filesize($outfile) : 0;
+		clearstatcache(); 
+		$outfile_size = is_file($outfile) ? filesize($outfile) : 0;
 		if ($outfile_size>0)
 		{
 			if ($_DEBUG) logEcho("*** DUMP [" . $outfile_size  . "]: " . $outfile, true);
@@ -436,7 +438,7 @@ foreach($targets as $target)
 	// *** EMPTY OUTPUT FILE - END
 
 	// *** VERSION CONTROL - BEGIN
-	if (empty($_ERRORS))
+	if (empty(getTargetErrors($target_tag)))
 	{
 		// Git repo create, backup configuration add and commit actions
 		if ($output_file_sync=="sync")
@@ -455,8 +457,10 @@ foreach($targets as $target)
 			. " " . escapeshellarg("$target_tag $outfile_datepfx")
 			. ($_DEBUG ? " 1" : "");
 		}
+
 		if ($_DEBUG) logEcho("*** EXEC: " . $cmd);
 		exec($cmd, $cmd_output, $cmd_status); // Git actions
+
 		if ($cmd_status == 0)
 		{
 			file_put_contents($gitfile_dir . "/.git/description", "$target_tag"); // Update git repo name
@@ -466,7 +470,14 @@ foreach($targets as $target)
 			}
 			else
 			{
-				$msg = end($cmd_output); logEcho("*** COMMIT:" . $msg);
+				if (empty($cmd_output))
+				{
+					logEcho("*** UNCHANGED: Target '$target_tag'.", true);
+				}
+				else
+				{
+					foreach(array_slice($cmd_output, -2, 2) as $msg) logEcho("*** COMMIT:" . $msg, true);
+				}
 			}
 		}
 		else
@@ -474,19 +485,27 @@ foreach($targets as $target)
 			logError("Error ($cmd_status) exec '$cmd' trace: " . implode("\n", $cmd_output), $target, $logfile);
 		}
 	}
+	else
+	{
+		logEcho("*** UNCOMMITED: Target '$target_tag' due to " . count(getTargetErrors($target_tag)) . " previous errors!", true);	
+	}
 	// *** VERSION CONTROL - END
 
 }
 
 // *** FINAL REPORT - BEGIN
-if (!empty($_ERRORS))
+$_ALL_ERRORS = $_GLOBAL_ERRORS;
+
+foreach($_TARGET_ERRORS as $target_errors) $_ALL_ERRORS = array_merge($_ALL_ERRORS, $target_errors);
+
+if (!empty($_ALL_ERRORS))
 {
-	$errorList = tabulate($_ERRORS, array("Tag", "Addr", "Error", "Log"));
+	$errorList = tabulate($_ALL_ERRORS, array("Target","Address","Message","Log"));
 	logEcho("*** FINAL ERROR REPORT\n" . $errorList);
 	$_REPORT = array_merge(
 		array(
 			"Targets processed " . $targets_processed . "/" . $targets_count . "."
-			, "Sorry, there were ".count($_ERRORS)." errors:"
+			, "Sorry, there were ".count($_ALL_ERRORS)." errors:"
 			, $errorList
 			, "Execution output:"
 		)
@@ -509,7 +528,7 @@ if (!empty($_ERRORS))
 // *** EMAIL NOTIFICATION - BEGIN
 $body = implode("\n", $_REPORT);
 $subject = "Netdump [OK:" . $targets_processed . "/" . $targets_count . "]";
-if ($_EXITCODE != 0) $subject = "Netdump [" . count($_ERRORS) . " errors]";
+if ($_EXITCODE != 0) $subject = "Netdump [" . count($_ALL_ERRORS) . " errors]";
 $subject .= " - $outfile_datepfx";
 
 if ($_MAIL_ACTIVE){
