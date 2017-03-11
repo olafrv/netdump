@@ -75,7 +75,9 @@ $_TEMPLATE["cisco.ucs"] = array(
 			  array("set-type", "set type $auth[5]\n", 1)
 		)
     , array(
-			  array("set-remote-file", "set remote-file ftp/" . $target_tag . ".bin\n", 1)
+			  array("set-remote-file", "set remote-file ftp/" . $target_tag
+					. ($auth[5]=="full-state" ? ".bin" : ".xml")
+					. "\n", 1)
 		)
     , array(
 			  array("enable", "enable\n", 1)
@@ -97,14 +99,20 @@ $_TEMPLATE["cisco.ucs"] = array(
 			  array("exit", "exit\n", 1)
 		)
 	)
-	, "pre-exec" => array(
-		"rm -f '/opt/netdump/ftp/" . $target_tag . ".bin'" // Delete any previous backup
+	, "pre-exec" => array( // Delete any previous backup
+		"rm -f '/opt/netdump/ftp/" . $target_tag
+				. ($auth[5]=="full-state" ? ".bin" : ".xml") . "'"
 	)
 	, "post-exec" => array(
 		"sleep 120" // UCS asynchronous job triggering
-		, "test -s '/opt/netdump/ftp/" . $target_tag . ".bin'"
-		, "cp '/opt/netdump/ftp/" . $target_tag . ".bin' " . escapeshellarg($outfile)
-		, "mv '/opt/netdump/ftp/" . $target_tag . ".bin' " . escapeshellarg($gitfile)
+		, "test -s '/opt/netdump/ftp/" . $target_tag
+				. ($auth[5]=="full-state" ? ".bin" : ".xml") . "' "
+		, "cp '/opt/netdump/ftp/" . $target_tag 
+				. ($auth[5]=="full-state" ? ".bin" : ".xml") . "' "
+					. escapeshellarg($outfile_dir."/")
+		, "mv '/opt/netdump/ftp/" . $target_tag 
+				. ($auth[5]=="full-state" ? ".bin" : ".xml") . "' "
+					. escapeshellarg($gitfile_dir."/")
 	)
 );
 
