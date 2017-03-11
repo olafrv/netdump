@@ -14,7 +14,7 @@ $_TEMPLATE["fortinet.fortios.novdom"] = array(
 			  array("sshpassword", "$auth[2]\n", 1)
 			,	array("prompt", "execute backup full-config ftp ftp/" . $target_tag . ".conf $auth[5] $auth[3] $auth[4]\n", 1)
 			, array("prompt", "end\n", 1)
-			, array("prompt", "exit\n", 1)
+			, array("prompt", "exit\n", 1, "finish")
 		)
 	)
 	, "pre-exec" => array(

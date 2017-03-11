@@ -284,6 +284,18 @@ foreach($targets as $target)
 			logError("Undefined template variable(s): " . implode(",",$template_variables_undefined), $target, $logfile);
 			continue;
 		}
+		// Check finish in case or answers
+		if (count($_TEMPLATE[$template]["cases"])!=count($_TEMPLATE[$template]["answers"]))
+		{
+			logError("Cases and answers groups count differs in template '$template'", $target, $logfile);
+			continue;
+		}
+		if (is_null(tabget(end($_TEMPLATE[$template]["cases"]), 3,"finish")) &&
+				is_null(tabget(end($_TEMPLATE[$template]["answers"]), 3,"finish")))
+		{
+			logError("Last cases or answers group must define a 'finish' action in 'template'", $target, $logfile);
+			continue;
+		}
 	}
 	else
 	{
