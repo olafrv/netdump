@@ -273,6 +273,17 @@ foreach($targets as $target)
 			logError("Undefined \$_TEMPLATE[\"". $template . "\"] in '$template_file'", $target, $logfile);
 			continue;
 		}
+		// Check mandatory variables in templates
+		$template_variables = array("cmd","output","cases","answers");
+		$template_variables_undefined = array();
+		foreach($template_variables as $template_variable)
+			if (!isset($_TEMPLATE[$template][$template_variable])) 
+				$template_variables_undefined[] = $template_variable;
+		if (!empty($template_variables_undefined))
+		{
+			logError("Undefined template variable(s): " . implode(",",$template_variables_undefined), $target, $logfile);
+			continue;
+		}
 	}
 	else
 	{
