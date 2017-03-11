@@ -28,31 +28,35 @@ $_TEMPLATE["cisco.ucs"] = array(
 			, array("^.*[-_\.0-9A-Za-z]+ \/system #", "backup", EXP_REGEXP, "jump")
 		)
 		, array(
-			  array("^.*[-_\.0-9A-Za-z]+ \/system/backup\** #", "set-protocol", EXP_REGEXP, "jump")
+			  array("^.*[-_\.0-9A-Za-z]+ \/system\/backup\** #", "set-protocol", EXP_REGEXP, "jump")
 		)
 		, array(
-			  array("^.*[-_\.0-9A-Za-z]+ \/system/backup\** #", "set-user", EXP_REGEXP, "jump")
+			  array("^.*[-_\.0-9A-Za-z]+ \/system\/backup\** #", "set-user", EXP_REGEXP, "jump")
 		)
 		, array(
-			  array("^.*[-_\.0-9A-Za-z]+ \/system/backup\** #", "set-type", EXP_REGEXP, "jump")
+			  array("^.*[-_\.0-9A-Za-z]+ \/system\/backup\** #", "set-type", EXP_REGEXP, "jump")
 		)
 		, array(
-			  array("^.*[-_\.0-9A-Za-z]+ \/system/backup\** #", "set-remote-file", EXP_REGEXP, "jump")
+			  array("^.*[-_\.0-9A-Za-z]+ \/system\/backup\** #", "set-remote-file", EXP_REGEXP, "jump")
 		)
 		, array(
-			  array("^.*[-_\.0-9A-Za-z]+ \/system/backup\** #", "enable", EXP_REGEXP, "jump")
+			  array("^.*[-_\.0-9A-Za-z]+ \/system\/backup\** #", "enable", EXP_REGEXP, "jump")
 		)
 		// Uncomment for FTP, SFTP and SCP
 		, array(
 			array("^.*[Pp]assword:", "password", EXP_REGEXP, "jump")
 		)
 		, array(
-			  array("^.*[-_\.0-9A-Za-z]+ \/system/backup\** #", "commit-buffer", EXP_REGEXP, "jump")
+			  array("^.*[-_\.0-9A-Za-z]+ \/system\/backup\** #", "commit-buffer", EXP_REGEXP, "jump")
 		)
 		, array(
-			  array("^.*[-_\.0-9A-Za-z]+ \/system/backup #", "exit", EXP_REGEXP)
-			,	array("^.*[-_\.0-9A-Za-z]+ \/system #", "exit", EXP_REGEXP)
-			, array("^.*[-_\.0-9A-Za-z]+#", "exit", EXP_REGEXP, "finish")
+			array("^.*[-_\.0-9A-Za-z]+ \/system\/backup #", "exit", EXP_REGEXP, "jump")
+		)
+		, array(
+			array("^.*[-_\.0-9A-Za-z]+ \/system #", "exit", EXP_REGEXP, "jump")
+		)
+		, array(
+			array("^.*[-_\.0-9A-Za-z]+#", "exit", EXP_REGEXP, "finish")
 		)
 	)
   , "answers" => array(
@@ -84,7 +88,13 @@ $_TEMPLATE["cisco.ucs"] = array(
 			  array("commit-buffer", "commit-buffer\n", 1)
 		)
     , array(
-			  array("exit", "exit\n", 3)
+			  array("exit", "exit\n", 1)
+		)
+    , array(
+			  array("exit", "exit\n", 1)
+		)
+    , array(
+			  array("exit", "exit\n", 1)
 		)
 	)
 	, "pre-exec" => array(
