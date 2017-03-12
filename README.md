@@ -65,11 +65,21 @@ comment the lines if you dont need them or prefer another security measure.
 
 # Scheduled Tasks (Cron Jobs)
 
-* An example of crontab is here [conf/crontab](https://github.com/olafrv/netdump/tree/master/conf)
-* Cron jobs should run with **netdump** user and edited as follows:
+An example of crontab is here [conf/crontab](https://github.com/olafrv/netdump/tree/master/conf)
+
+Cron jobs should run with **netdump** user and edited as follows:
 ```
 sudo su - netdump
 crontab -e
+```
+
+An adding and the following content:
+```
+MAILTO=netdump@localhost
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+0 21 * * * source ~/.bash_profile && netdump runmail
+0 9 * * * source ~/.bash_profile && ~/netdump/purge.sh > /dev/null
 ```
 
 * Cronjobs are:
