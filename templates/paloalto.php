@@ -52,7 +52,8 @@ $_TEMPLATE["paloalto"] = array(
 		"rm -f '/opt/netdump/ftp/" . $target_tag . ".xml'" // Delete any previous backup
 	)
 	, "post-exec" => array(
-		  "test -s '/opt/netdump/ftp/" . $target_tag . ".xml'"
+		  "sleep 3"
+		, "test -s '/opt/netdump/ftp/" . $target_tag . ".xml'"
 		, "cp '/opt/netdump/ftp/" . $target_tag . ".xml' " . escapeshellarg($outfile)
 		, "mv '/opt/netdump/ftp/" . $target_tag . ".xml' " . escapeshellarg($gitfile)
 	)
