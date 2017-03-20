@@ -50,7 +50,11 @@ Dumps versions are saved in individual git repositories per device in:
 
 * */var/lib/netdump/git* 
 
-An available internal **netdump commands**, [GitWeb](https://git-scm.com/docs/gitweb) (/gitweb) in the same server and using raw **git commands** using **netdump** local user.
+Git repositories can be manipulated with:
+
+* Using **netdump commands**: show and clone.
+* [GitWeb](https://git-scm.com/docs/gitweb) (/gitweb) in the same server.
+* Using raw **git commands** using **netdump** local user.
 
 Finally, some manual configuration are REQUIRED:
 
