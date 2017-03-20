@@ -27,4 +27,5 @@ MAILTO=netdump@localhost
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
 0 21 * * * source ~/.bash_profile && netdump runmail
+0 9 * * * source ~/.bash_profile && ~/netdump/purge.sh > /dev/null
 
