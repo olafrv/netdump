@@ -256,4 +256,24 @@ netdump clone target <destination> [commit]
 **destination:** is directory (e.g. /tmp).
 **commit:** if specified should be taked from the output of the **commit command**.
 
+# Troubleshooting
+
+For basic trouble shooting use debug command, which show more useful output.
+
+SSH in template needs to be run in **QUITE MODE** issue a '-q' parameter.
+
+Run manually the command (cmd) shown in the debug screen output without '-q'.
+
+Some SSH errors like: key mismatch, weak key algorithm, can be detected easily.
+
+Most SSH errors with legacy devices could be resolved using telnet.
+
+The installation process (install.sh) create a client configuration  ~/.ssh/config to allow connection with old cisco devices using weak protocolo.  An example is shown here:
+
+```
+# https://www.openssh.com/legacy.html
+Host *
+        KexAlgorithms +diffie-hellman-group1-sha1
+        HostKeyAlgorithms +ssh-dss
+```
 
