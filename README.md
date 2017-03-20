@@ -46,9 +46,11 @@ Output (Dump) from devices are saved in:
 
 * */var/lib/netdump/dumps*
 
-Dumps versions are saved in: 
+Dumps versions are saved in individual git repositories per device in: 
 
-* */var/lib/netdump/git* an available via [GitWeb](https://git-scm.com/docs/gitweb) (/gitweb) in the same server.
+* */var/lib/netdump/git* 
+
+An available internal **netdump commands**, [GitWeb](https://git-scm.com/docs/gitweb) (/gitweb) in the same server and using raw **git commands** using **netdump** local user.
 
 Finally, some manual configuration are REQUIRED:
 
@@ -114,7 +116,7 @@ Then restart the service:
 service restart rsyslog
 ```
 
-# Backup (Global)
+# Backup
 
 This are the most important directories to backup outside from netdump server:
 
@@ -123,6 +125,13 @@ This are the most important directories to backup outside from netdump server:
   * */etc/netdump*
 * /opt/netdump
 * /var/lib/netdump
+
+# Purge 
+
+To erase all backups just delete the following directories:
+
+* /var/lib/netdump/{dumps,logs}/* using a purge script (See cronjobs section).
+* /var/lib/netdump/git/* using linux rm command carefully. 
 
 
 # Templates
