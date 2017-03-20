@@ -258,17 +258,17 @@ netdump clone target <destination> [commit]
 
 # Troubleshooting
 
-For basic trouble shooting use debug command, which show more useful output.
+For basic trouble shooting use **debug command**, which shows more **useful output**.
 
-SSH in template needs to be run in **QUITE MODE** issue a '-q' parameter.
+**SSH** in template needs to be run in **QUITE MODE** issue a **'-q'** parameter.
 
-Run manually the command (cmd) shown in the debug screen output without '-q'.
+**Run manually the command** (cmd) shown in the **debug screen output** without '-q'.
 
-Some SSH errors like: key mismatch, weak key algorithm, can be detected easily.
+Some **SSH errors** like: key mismatch, weak key algorithm, can be detected easily.
 
-Most SSH errors with legacy devices could be resolved using telnet.
+Most SSH errors with **legacy devices** could be resolved using **telnet**.
 
-The installation process (install.sh) create a client configuration  ~/.ssh/config to allow connection with old cisco devices using weak protocolo.  An example is shown here:
+The installation process (install.sh) create a client configuration  **~/.ssh/config** to allow connection with old cisco devices using **weak protocols**.  An example is shown here:
 
 ```
 # https://www.openssh.com/legacy.html
