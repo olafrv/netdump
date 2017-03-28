@@ -250,7 +250,7 @@ netdump [debug|debugmail] [tag]
 
 Make a copy of the last or a specific dump commited version of a target:
 ```
-netdump clone target <destination> [commit]
+netdump clone <target> <destination> [commit]
 ```
 
 **destination:** is directory (e.g. /tmp).
