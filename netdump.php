@@ -321,7 +321,10 @@ foreach($targets as $target)
 			exec($cmd, $cmd_output, $cmd_status);
 			if ($_DEBUG) logEcho(implode("\n", $cmd_output));
 			$pre_exec = $pre_exec &&  ($cmd_status==0);
-			if ($cmd_status!=0) logError("Error on pre-exec '$cmd'", $target, $logfile);
+			if ($cmd_status!=0){
+				logError("Error on pre-exec '$cmd'", $target, $logfile);
+				break; // Abort pre-exec processing (all or nothing!)
+			}
 		}
 		if (!$pre_exec) continue; // Skip this target if pre-exec was not sucessfull
 	}
@@ -390,7 +393,7 @@ foreach($targets as $target)
 			if ($_DEBUG) logEcho("*** FINISHED"); // As programmed in cases so it's ok
 			break;
 		case AUTOMATA_EOF:
-			$msg = "Error unhandle EOF!"; // EOF received but not handled
+			$msg = "Error unhandled EOF!"; // EOF received but not handled
 			logError($msg, $target, $logfile);
 			break;
 		case AUTOMATA_TIMEOUT:
@@ -421,7 +424,10 @@ foreach($targets as $target)
 			exec($cmd, $cmd_output, $cmd_status);
 			if ($_DEBUG) logEcho(implode("\n", $cmd_output));
 			$post_exec = $post_exec & ($cmd_status==0);
-			if ($cmd_status!=0) logError("Error on post-exec '$cmd'", $target, $logfile);
+			if ($cmd_status!=0){
+				logError("Error on post-exec '$cmd'", $target, $logfile);
+				break; // Abort the post-exec processing (all or nothing!)
+			}
 		}
 		if (!$post_exec) continue; // Skip this target if pre-exec was not sucessfull
 	}
@@ -438,7 +444,7 @@ foreach($targets as $target)
 		}
 		else
 		{
-			logError("Empty file '$outfile'!", $target, $logfile);
+			logError("Empty file '".basename($outfile)."'!", $target, $logfile);
 		}
 	}
 	// *** EMPTY OUTPUT FILE - END
