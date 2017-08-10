@@ -9,11 +9,14 @@ $_TEMPLATE["bluecoat.7.1"] = array(
 	, "output" => "async"
 	, "cases" => array(
 		array(
-			  array("^.*[Pp]assword:", "password", EXP_REGEXP, "jump")
-//			, array("^.*[-_\.0-9A-Za-z]+#", "setup", EXP_REGEXP, "jump")
+			array("^.*[Pp]assword:", "password", EXP_REGEXP, "jump")
 		)
 		, array(
-			array("^.*[-_\.0-9A-Za-z]+#", "ftp-backup", EXP_REGEXP, "jump")
+			array("^.*[-_\.0-9A-Za-z]+#", "setup", EXP_REGEXP, "jump")
+		)
+		, array(
+			  array("^.*Please confirm if you really want to proceed \(YES\):", "overwrite", EXP_REGEXP)
+			,	array("^.*[-_\.0-9A-Za-z]+#", "ftp-backup", EXP_REGEXP, "jump")
 		)
 		, array(
 			array("^.*[-_\.0-9A-Za-z]+#", "ftp-config", EXP_REGEXP, "jump")
@@ -31,10 +34,13 @@ $_TEMPLATE["bluecoat.7.1"] = array(
   , "answers" => array(
 		array(
 			  array("password", "$auth[2]\n", 1)
-//			, array("setup", "setup capture complete backup.cmd\n", 1)
 		)
-    , array(
-			array("ftp-backup", 
+		, array(
+			array("setup", "setup capture complete backup.cmd\n", 1)
+		)
+		, array(
+				array("overwrite", "yes\n", 1)
+			, array("ftp-backup", 
 				"ftpput $auth[3]:$auth[4]@$auth[5] 9.256/cmd/backup.cmd ftp/".$target_tag."-backup.cmd\n"	, 1)
 		)
     , array(
