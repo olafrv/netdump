@@ -1,5 +1,8 @@
 <?php
 
+// Product: Netgear GS752TP ProSafe 48 Port Gigabit Smart Switch
+// Requirements: Web GUI -> Maintenance -> Troubleshooting -> Remote Diagnostic -> Enable
+
 $_TEMPLATE["netgear"] = array(
 	"cmd" => "telnet $address",
 	"cases" => array(
