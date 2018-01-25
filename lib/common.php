@@ -37,11 +37,28 @@ function strclean($str){
 	return trim(preg_replace('/[[:^print:]]/', '', $str)); 
 }
 
-function splitlines($lines, $delimiter){
-	$array = array(); 
+function splitStr($str, $delimiter){
+	return explode($delimiter, $str);
+}
+
+function splitStrRegex($str, $delimiterRegex){
+	return preg_split($delimiterRegex, $str);
+}
+
+function splitTokensLines($lines, $delimiter){
+	$array = array();
 	foreach($lines as $line){
-		$tokens = explode($delimiter, trim($line));
-		$array[] = array_map("strclean", $tokens); // Trim spaces and non printable
+		$tokens = splitStr(trim($line), $delimiter); // Trim lines spaces
+		$array[] = array_map("strclean", $tokens); // Trim tokens spaces and non printable
+	}
+	return $array;
+}
+
+function splitTokensLinesRegex($lines, $delimiterRegex){
+	$array = array();
+	foreach($lines as $line){
+		$tokens = splitStrRegex(trim($line), $delimiterRegex); // Trim lines spaces
+		$array[] = array_map("strclean", $tokens); // Trim tokens spaces and non printable
 	}
 	return $array;
 }
