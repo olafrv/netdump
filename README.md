@@ -1,5 +1,7 @@
 # Netdump
 
+> :warning::warning::warning: This repository is **NOT** under **active maintenance** since August 2023, see https://www.rconfig.com/ for a replacement.
+
 ## What it is?
 
 A tool to remotly backup the configuration of networked switches, routers, firewalls and servers using expect php library, git version control and many other Linux utilities.
